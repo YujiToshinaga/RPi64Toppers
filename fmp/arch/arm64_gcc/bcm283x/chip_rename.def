@@ -1,0 +1,12 @@
+# chip_config.c
+chip_mprc_initialize
+chip_initialize
+chip_exit
+
+# kernel_cfg.c
+p_inh_table
+p_cfgint_table
+p_inh_iipm_table
+p_iipm_mask_table
+
+INCLUDE "arm64_gcc/common/core"

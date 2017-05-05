@@ -1,0 +1,12 @@
+# start.S
+start_sync
+
+# target_config.c
+target_mon_initialize
+target_hyp_initialize
+target_mprc_initialize
+target_mmu_init
+target_initialize
+target_exit
+
+INCLUDE "arm64_gcc/bcm283x/chip"

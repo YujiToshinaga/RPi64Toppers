@@ -1,0 +1,7 @@
+E_PACKAGE fmp_rpi_arm64_gcc
+VERSION %date
+
+INCLUDE MANIFEST
+INCLUDE ../../MANIFEST
+INCLUDE ../../arch/arm64_gcc/MANIFEST
+INCLUDE ../../arch/arm64_gcc/mpcore/MANIFEST
