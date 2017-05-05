@@ -94,16 +94,17 @@ const SIOPINIB siopinib_table[TNUM_SIOP] = {
 void
 mu_reset(ID siopid)
 {
-	uint32_t baud = (250000000 / (8 * UART_BAUDRATE)) - 1;
+	uint32_t baud = (250000000 / (UART_BAUDRATE * 8)) - 1;
 
-    sil_wrw_mem((void *)AUX_ENABLES, 1);
-    sil_wrw_mem((void *)MU_IER, 0);
+    sil_wrw_mem((void *)AUX_ENABLES,
+            sil_rew_mem((void *)AUX_ENABLES) | AUX_ENABLES_MU_EN_BIT);
     sil_wrw_mem((void *)MU_CNTL, 0);
-    sil_wrw_mem((void *)MU_LCR, 3);
+    sil_wrw_mem((void *)MU_IER, 0);
+    sil_wrw_mem((void *)MU_IIR, MU_IIR_FIFO_CLR);
+    sil_wrw_mem((void *)MU_LCR, MU_LCR_DS_8BIT);
     sil_wrw_mem((void *)MU_MCR, 0);
-    sil_wrw_mem((void *)MU_IIR, 0xc6);
     sil_wrw_mem((void *)MU_BAUD, baud);
-    sil_wrw_mem((void *)MU_CNTL, 3);
+    sil_wrw_mem((void *)MU_CNTL, MU_CNTL_TX_EN_BIT | MU_CNTL_RX_EN_BIT);
 }
 
 /*
@@ -112,7 +113,8 @@ mu_reset(ID siopid)
 Inline bool_t
 mu_getready(SIOPCB *p_siopcb)
 {
-	return((sil_rew_mem((uint32_t *)MU_LSR) & MU_LSR_DATA_RDY_BIT) == MU_LSR_DATA_RDY_BIT);
+	return((sil_rew_mem((uint32_t *)MU_LSR) & MU_LSR_DATA_RDY_BIT) ==
+            MU_LSR_DATA_RDY_BIT);
 }
 
 /*
@@ -121,7 +123,8 @@ mu_getready(SIOPCB *p_siopcb)
 Inline bool_t
 mu_putready(SIOPCB *p_siopcb)
 {
-	return((sil_rew_mem((uint32_t *)MU_LSR) & MU_LSR_TX_EMPTY_BIT) == MU_LSR_TX_EMPTY_BIT);
+	return((sil_rew_mem((uint32_t *)MU_LSR) & MU_LSR_TX_EMPTY_BIT) ==
+            MU_LSR_TX_EMPTY_BIT);
 }
 
 /*
@@ -148,7 +151,8 @@ mu_putchar(SIOPCB *p_siopcb, char c)
 Inline void
 mu_enable_send(SIOPCB *p_siopcb)
 {
-	sil_wrw_mem((uint32_t *)MU_IER, sil_rew_mem((uint32_t *)MU_IER) | MU_IER_EN_TX_INT_BIT);
+	sil_wrw_mem((uint32_t *)MU_IER,
+            sil_rew_mem((uint32_t *)MU_IER) | MU_IER_EN_TX_INT_BIT);
 }
 
 /*
@@ -157,7 +161,8 @@ mu_enable_send(SIOPCB *p_siopcb)
 Inline void
 mu_disable_send(SIOPCB *p_siopcb)
 {
-	sil_wrw_mem((uint32_t *)MU_IER, sil_rew_mem((uint32_t *)MU_IER) & ~MU_IER_EN_TX_INT_BIT);
+	sil_wrw_mem((uint32_t *)MU_IER,
+            sil_rew_mem((uint32_t *)MU_IER) & ~MU_IER_EN_TX_INT_BIT);
 }
 
 /*
@@ -166,7 +171,8 @@ mu_disable_send(SIOPCB *p_siopcb)
 Inline void
 mu_enable_rcv(SIOPCB *p_siopcb)
 {
-	sil_wrw_mem((uint32_t *)MU_IER, sil_rew_mem((uint32_t *)MU_IER) | MU_IER_EN_RX_INT_BIT);
+	sil_wrw_mem((uint32_t *)MU_IER,
+            sil_rew_mem((uint32_t *)MU_IER) | MU_IER_EN_RX_INT_BIT);
 }
 
 /*
@@ -175,7 +181,8 @@ mu_enable_rcv(SIOPCB *p_siopcb)
 Inline void
 mu_disable_rcv(SIOPCB *p_siopcb)
 {
-	sil_wrw_mem((uint32_t *)MU_IER, sil_rew_mem((uint32_t *)MU_IER) & ~MU_IER_EN_RX_INT_BIT);
+	sil_wrw_mem((uint32_t *)MU_IER,
+            sil_rew_mem((uint32_t *)MU_IER) & ~MU_IER_EN_RX_INT_BIT);
 }
 
 /*
@@ -357,5 +364,4 @@ sio_dis_cbr(SIOPCB *p_siopcb, uint_t cbrtn)
 		break;
 	}
 }
-
 
