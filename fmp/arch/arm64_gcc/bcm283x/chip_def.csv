@@ -1,0 +1,19 @@
+TMIN_INTNO,TMIN_INTNO
+TMAX_INTNO,TMAX_INTNO
+TMIN_INHNO,TMIN_INHNO
+TMAX_INHNO,TMAX_INHNO
+TNUM_INH,TNUM_INH
+offsetof_PCB_p_firstlock,#(TTYPE_KLOCK != G_KLOCK),,"offsetof(PCB,p_firstlock)"
+offsetof_PCB_p_secondlock,#(TTYPE_KLOCK != G_KLOCK),,"offsetof(PCB,p_secondlock)"
+offsetof_PCB_locspnid,"offsetof(PCB,locspnid)"
+offsetof_PCB_excpt_nest_count,"offsetof(PCB,target_pcb.excpt_nest_count)"
+offsetof_PCB_istkpt,"offsetof(PCB,target_pcb.istkpt)"
+offsetof_PCB_p_exch_tbl,"offsetof(PCB,target_pcb.p_exch_tbl)"
+offsetof_PCB_p_inh_tbl,"offsetof(PCB,target_pcb.p_inh_tbl)"
+offsetof_PCB_p_inh_iipm_tbl,"offsetof(PCB,target_pcb.p_inh_iipm_tbl)"
+offsetof_PCB_p_iipm_mask_tbl,"offsetof(PCB,target_pcb.p_iipm_mask_tbl)"
+offsetof_PCB_iipm,"offsetof(PCB,target_pcb.iipm)"
+offsetof_PCB_saved_iipm,#defined(USE_GIC_CPULOCK),,"offsetof(PCB,target_pcb.saved_iipm)"
+offsetof_PCB_lock_flag,#defined(USE_GIC_CPULOCK),,"offsetof(PCB,target_pcb.lock_flag)"
+TOPPERS_SAFEG_SECURE,#defined(TOPPERS_SAFEG_SECURE)
+TOPPERS_SAFEG_NONSECURE,#defined(TOPPERS_SAFEG_NONSECURE)
