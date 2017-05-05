@@ -1,0 +1,113 @@
+#
+#  @(#) $Id: Makefile.target 1148 2016-01-08 08:15:59Z ertl-toshinaga $
+# 
+
+#
+#		Makefile のターゲット依存部（RPI-ARM64用）
+#
+
+#
+#  ボード名の定義
+#
+BOARD = rpi_arm64
+
+#
+#  Coreの種類の定義
+#
+#BCM283X_TYPE = CA53_64
+#BCM283X_TYPE = CA57_64
+
+#
+#  コンパイルオプション
+#
+INCLUDES := $(INCLUDES) -I$(TARGETDIR)
+COPTS := $(COPTS) -mlittle-endian -mgeneral-regs-only
+LDFLAGS := $(LDFLAGS) -nostdlib -mlittle-endian
+LDFLAGS := $(LDFLAGS) -Wl,--build-id=none
+CDEFS := $(CDEFS)
+CFG1_OUT_LDFLAGS := -nostdlib $(CFG1_OUT_LDFLAGS)
+
+#
+#  SafeGに関する定義
+#
+# TODO
+
+#
+#  マクロの定義
+#
+CDEFS := $(CDEFS) -DTOPPERS_OMIT_DATA_INIT
+CDEFS := $(CDEFS) -DINIT_MONITOR
+CDEFS := $(CDEFS) -DINIT_HYPERVISOR
+#CDEFS := $(CDEFS) -DENABLE_NMFI
+CDEFS := $(CDEFS) -DG_SYSLOG
+
+#
+#  カーネルに関する定義
+#
+KERNEL_DIR := $(KERNEL_DIR) $(TARGETDIR)
+KERNEL_COBJS := $(KERNEL_COBJS) target_config.o
+
+#
+#  システムサービスに関する定義
+#
+SYSSVC_DIR := $(SYSSVC_DIR) $(TARGETDIR)
+SYSSVC_COBJS := $(SYSSVC_COBJS)
+
+#
+#  トレースログ記録のサンプルコードに関する定義
+#
+ifeq ($(ENABLE_TRACE),true)
+COPTS := $(COPTS) -DTOPPERS_ENABLE_TRACE
+KERNEL_DIR := $(KERNEL_DIR) $(SRCDIR)/arch/logtrace
+KERNEL_COBJS := $(KERNEL_COBJS) trace_config.o trace_dump.o
+endif
+
+#
+#  GNU開発環境のターゲットアーキテクチャの定義
+#
+GCC_TARGET = aarch64-elf
+
+#
+#  各セグメントの開始アドレスの定義
+#
+#ifeq ($(SAFEG),SECURE)
+#else ifeq ($(SAFEG),NONSECURE)
+#else
+TEXT_START_ADDRESS=0x00000000
+#endif
+
+#
+#  リンカスクリプトの定義
+#
+LDSCRIPT = $(TARGETDIR)/rpi_arm64.ld
+
+#
+#  スタートアップモジュールに関する定義
+#
+#  rpi_arm64.ldに「STARTUP(start.o)」を記述したため，スタートアップモジュー
+#  ルの名前をHIDDEN_OBJSに定義する．
+#
+HIDDEN_OBJS = start.o
+
+$(HIDDEN_OBJS): %.o: %.S
+	$(CC) -c $(CFLAGS) $(KERNEL_CFLAGS) $<
+
+$(HIDDEN_OBJS:.o=.d): %.d: %.S
+	@$(PERL) $(SRCDIR)/utils/makedep -C $(CC) \
+		-O "$(CFLAGS) $(KERNEL_CFLAGS)" $< >> Makefile.depend
+
+#
+#  依存関係の定義
+#
+kernel_cfg.timestamp: $(TARGETDIR)/target.tf
+$(OBJFILE): $(TARGETDIR)/target_check.tf
+
+# 
+#  オフセットファイル生成のための定義 
+# 
+OFFSET_TF := $(TARGETDIR)/target_offset.tf
+
+#
+#  チップ依存部のインクルード
+#
+include $(SRCDIR)/arch/arm64_gcc/bcm283x/Makefile.chip

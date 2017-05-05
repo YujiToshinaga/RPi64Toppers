@@ -1,0 +1,61 @@
+#
+#  @(#) $Id: Makefile.chip 1149 2016-01-08 08:19:14Z ertl-toshinaga $
+#
+
+#
+#		Makefile のチップ依存部（BCM283X用）
+#
+
+#
+#  チップ名，コア名，開発環境名の定義
+#
+CHIP = bcm283x
+PRC  = arm64
+TOOL = gcc
+
+CHIPDIR = $(SRCDIR)/arch/$(PRC)_$(TOOL)/$(CHIP)
+
+#
+#  コンパイルオプション
+#
+ifeq ($(CORE_TYPE),CA53_64)
+COPTS := $(COPTS) -mcpu=cortex-a53
+LDFLAGS := $(LDFLAGS) -mcpu=cortex-a53
+endif
+
+ifeq ($(CORE_TYPE),CA57_64)
+COPTS := $(COPTS) -mcpu=cortex-a57
+LDFLAGS := $(LDFLAGS) -mcpu=cortex-a57
+endif
+
+INCLUDES := $(INCLUDES) -I$(CHIPDIR)
+LDFLAGS := $(LDFLAGS) -N
+
+#
+#  カーネルに関する定義
+#
+KERNEL_DIR := $(KERNEL_DIR) $(CHIPDIR)
+KERNEL_ASMOBJS := $(KERNEL_ASMOBJS) chip_support.o
+KERNEL_COBJS := $(KERNEL_COBJS) chip_config.o
+
+#
+#  システムサービスに関する定義
+#
+SYSSVC_DIR := $(SYSSVC_DIR) $(CHIPDIR)
+SYSSVC_COBJS := $(SYSSVC_COBJS) chip_serial.o
+
+#
+#  依存関係の定義
+#
+kernel_cfg.timestamp: $(CHIPDIR)/chip.tf
+$(OBJFILE): $(CHIPDIR)/chip_check.tf
+
+#
+#  コンフィギュレータ関係の変数の定義
+#
+CFG_TABS := $(CFG_TABS) --cfg1-def-table $(CHIPDIR)/chip_def.csv
+
+#
+#  ARM64依存部のインクルード
+#
+include $(SRCDIR)/arch/$(PRC)_$(TOOL)/common/Makefile.core

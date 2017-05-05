@@ -1,0 +1,10 @@
+# core_config.c
+core_mprc_initialize
+core_initialize
+core_exit
+default_exc_handler
+default_int_handler
+ipi_ext_handler
+
+# kernel_cfg.c
+p_exch_table
