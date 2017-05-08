@@ -59,6 +59,7 @@
  */
 //#define DEBUG_CORE0
 #define DEBUG_JTAG
+//#define DEBUG_MU
 //#define DEBUG_STUB
 
     ATEXT
@@ -70,117 +71,202 @@ ALABEL(start)
     /*
      *  コア0だけ実行
      */
-ALABEL(barrier)
+ALABEL(dbgcore0)
     mrs   x0, mpidr_el1
-    ldr   x1, =MPIDR_AFF_ALL_MASK
+    ldr   x1, =MPIDR_AFF0_MASK
     and   x0, x0, x1
-    cmp   x0, 0x0
-    b.eq  barrier_core0
-ALABEL(barrier_sleep)
+    cmp   x0, xzr
+    b.eq  dbgcore0_exit
+ALABEL(dbgcore0_sleep)
     wfi
-    b     barrier_sleep
-ALABEL(barrier_core0)
+    b     dbgcore0_sleep
+ALABEL(dbgcore0_exit)
 #endif /* DEBUG_CORE0 */
 
 #ifdef DEBUG_JTAG
     /*
      *  JTAGの有効化
      */
-ALABEL(jtagcfg)
+ALABEL(dbgjtag)
     mrs   x0, mpidr_el1
-    ldr   x1, =MPIDR_AFF_ALL_MASK
+    ldr   x1, =MPIDR_AFF0_MASK
     and   x0, x0, x1
-    cmp   x0, 0x0
-    b.ne  jtagcfg_exit
-ALABEL(jtagcfg_gpfsel)
-    ldr   x2, =0x3f200008
-    ldr   w0, [x2]
-    mov   w1, #7            /* FSEL22 <= ALT4 */
-    lsl   w1, w1, #6
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #6
-    orr   w0, w0, w1
-    mov   w1, #7            /* FSEL23 <= ALT4 */
-    lsl   w1, w1, #9
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #9
-    orr   w0, w0, w1
-    mov   w1, #7            /* FSEL24 <= ALT4 */
-    lsl   w1, w1, #12
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #12
-    orr   w0, w0, w1
-    mov   w1, #7            /* FSEL25 <= ALT4 */
-    lsl   w1, w1, #15
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #15
-    orr   w0, w0, w1
-    mov   w1, #7            /* FSEL26 <= ALT4 */
-    lsl   w1, w1, #18
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #18
-    orr   w0, w0, w1
-    mov   w1, #7            /* FSEL27 <= ALT4 */
-    lsl   w1, w1, #21
-    mvn   w1, w1
-    and   w0, w0, w1
-    mov   w1, #3
-    lsl   w1, w1, #21
-    orr   w0, w0, w1
-    str   w0, [x2]
+    cmp   x0, xzr
+    b.ne  dbgjtag_exit
+ALABEL(dbgjtag_gpfsel)
+    ldr   x0, =GPIO_GPFSEL2
+    ldr   w1, [x0]
+    mov   w3, #7            /* FSEL22 <= ALT4 */
+    lsl   w3, w3, #6
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #6
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL23 <= ALT4 */
+    lsl   w3, w3, #9
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #9
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL24 <= ALT4 */
+    lsl   w3, w3, #12
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #12
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL25 <= ALT4 */
+    lsl   w3, w3, #15
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #15
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL26 <= ALT4 */
+    lsl   w3, w3, #18
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #18
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL27 <= ALT4 */
+    lsl   w3, w3, #21
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #3
+    lsl   w3, w3, #21
+    orr   w1, w1, w3
+    str   w1, [x0]
     dmb   sy
-
-ALABEL(jtagcfg_gppud)
-    ldr   x2, =0x3f200094
-    mov   w0, #0
-    str   w0, [x2]
+ALABEL(dbgjtag_gppud)
+    ldr   x0, =GPIO_GPPUD
+    ldr   w1, =0x00000000
+    str   w1, [x0]
     dmb   sy
-    mov   x1, #150
-ALABEL(jtagcfg_gppud_loop)
+    mov   w2, #150
+ALABEL(dbgjtag_gppud_loop)
     nop
-    sub   x1, x1, #1
-    cmp   x1, #0
-    bne   jtagcfg_gppud_loop
-
-ALABEL(jtagcfg_gppudclk0)
-    ldr   x2, =0x3f200098
-    ldr   w0, =0x0FC00000
-    str   w0, [x2]
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgjtag_gppud_loop
+ALABEL(dbgjtag_gppudclk0)
+    ldr   x0, =GPIO_GPPUDCLK0
+    ldr   w1, =0x0fc00000
+    str   w1, [x0]
     dmb   sy
-    mov   x1, #150
-ALABEL(jtagcfg_gppudclk0_loop)
+    mov   w2, #150
+ALABEL(dbgjtag_gppudclk0_loop)
     nop
-    sub   x1, x1, #1
-    cmp   x1, #0
-    bne   jtagcfg_gppudclk0_loop
-
-ALABEL(jtagcfg_clear_gppudclk0)
-    ldr   x2, =0x3f200098
-    mov   w0, #0
-    str   w0, [x2]
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgjtag_gppudclk0_loop
+ALABEL(dbgjtag_clear_gppudclk0)
+    ldr   x0, =GPIO_GPPUDCLK0
+    ldr   w1, =0x00000000
+    str   w1, [x0]
     dmb   sy
-    mov   x1, #150
-ALABEL(jtagcfg_clear_gppudclk0_loop)
+    mov   w2, #150
+ALABEL(dbgjtag_clear_gppudclk0_loop)
     nop
-    sub   x1, x1, #1
-    cmp   x1, #0
-    bne   jtagcfg_clear_gppudclk0_loop
-ALABEL(jtagcfg_exit)
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgjtag_clear_gppudclk0_loop
+ALABEL(dbgjtag_exit)
 #endif /* DEBUG_JTAG */
 
+#ifdef DEBUG_MU
+    /*
+     *  Mini Uartを有効化
+     *  config.txtにenalbe_uart=1を記載しても良い
+     */
+ALABEL(dbgmu)
+    mrs   x0, mpidr_el1
+    ldr   x1, =MPIDR_AFF0_MASK
+    and   x0, x0, x1
+    cmp   x0, xzr
+    b.ne  dbgmu_exit
+ALABEL(dbgmu_gpfsel)
+    ldr   x0, =GPIO_GPFSEL1
+    ldr   w1, [x0]
+    mov   w3, #7            /* FSEL14 <= ALT5 */
+    lsl   w3, w3, #12
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #2
+    lsl   w3, w3, #12
+    orr   w1, w1, w3
+    mov   w3, #7            /* FSEL15 <= ALT5 */
+    lsl   w3, w3, #15
+    mvn   w3, w3
+    and   w1, w1, w3
+    mov   w3, #2
+    lsl   w3, w3, #15
+    orr   w1, w1, w3
+    str   w1, [x0]
+    dmb   sy
+ALABEL(dbgmu_gppud)
+    ldr   x0, =GPIO_GPPUD
+    ldr   w1, =0x00000000
+    str   w1, [x0]
+    dmb   sy
+    mov   w2, #150
+ALABEL(dbgmu_gppud_loop)
+    nop
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgmu_gppud_loop
+ALABEL(dbgmu_gppudclk0)
+    ldr   x0, =GPIO_GPPUDCLK0
+    ldr   w1, =0x0fc00000
+    str   w1, [x0]
+    dmb   sy
+    mov   w2, #150
+ALABEL(dbgmu_gppudclk0_loop)
+    nop
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgmu_gppudclk0_loop
+ALABEL(dbgmu_clear_gppudclk0)
+    ldr   x0, =GPIO_GPPUDCLK0
+    mov   w1, #0x0
+    str   w1, [x0]
+    dmb   sy
+    mov   w2, #150
+ALABEL(dbgmu_clear_gppudclk0_loop)
+    nop
+    sub   w2, w2, #1
+    cmp   w2, wzr
+    bne   dbgmu_clear_gppudclk0_loop
+ALABEL(dbgmu_regcfg)
+    ldr   x0, =AUX_ENABLES
+    ldr   w1, [x0]
+    orr   w1, w1, #AUX_ENABLES_MU_EN_BIT
+    str   w1, [x0]
+    ldr   x0, =MU_BAUD
+    mov   w1, #((250000000 / (115200 * 8)) - 1)
+    str   w1, [x0]
+    dmb   sy
+ALABEL(dbgmu_test)
+    ldr   x1, =MU_LSR
+    ldr   w0, [x1]
+    mov   w2, #MU_LSR_TX_EMPTY_BIT
+    and   w0, w0, w2
+    cmp   w0, #MU_LSR_TX_EMPTY_BIT
+    b.ne  dbgmu_test
+    ldr   x1, =MU_IO
+    mov   w0, #0x41
+    str   w0, [x1]
+ALABEL(dbgmu_exit)
+#endif /* DEBUG_MU */
+
 #ifdef DEBUG_STUB
-ALABEL(stub_loop)
-    b     stub_loop
+    /*
+     *  stubを配置
+     */
+ALABEL(dbgstub_loop)
+    b     dbgstub_loop
 #endif /* DEBUG_STUB */
 
     /*
