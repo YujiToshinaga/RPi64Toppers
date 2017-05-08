@@ -70,6 +70,7 @@ void
 core_initialize(void)
 {
     uint32_t timer_clock_hz;
+    uint64_t tmp;
 
 	/*
 	 *  例外ベクタテーブルをVECTOR BASE ADDRESS レジスタに設定する
@@ -94,6 +95,13 @@ core_initialize(void)
 	 *  キャッシュを無効に
 	 */
 	cache_disable();
+
+	/*
+	 *  SMPモードを有効化
+	 */
+    CPUECTLR_EL1_READ(tmp);
+    tmp |= CPUECTLR_SMPEN_BIT;
+    CPUECTLR_EL1_WRITE(tmp);
 
 	/*
 	 *  MMUを有効に
