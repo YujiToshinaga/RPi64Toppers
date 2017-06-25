@@ -52,6 +52,14 @@ void task1(intptr_t exinf)
 	static int cnt[TNUM_PRCID] = {0};
 
 	syslog(LOG_NOTICE, "prc %d : TASK1 %d", (int)exinf, cnt[(int)exinf - 1]);
+
+    if ((int)exinf == 1) {
+        if (cnt[0] >= 10) {
+            syslog(LOG_NOTICE, "prc %d : kick cpu1", (int)exinf);
+            act_tsk(task1_id[1]);
+        }
+    }
+
 	cnt[(int)exinf - 1]++;
 }
 
@@ -66,7 +74,9 @@ void main_task(intptr_t exinf)
 
 //	RAISE_CPU_EXCEPTION;
 
-	sta_cyc(cychdr_id[(int)exinf - 1]);
+    if ((int)exinf == 1) {
+        sta_cyc(cychdr_id[(int)exinf - 1]);
+    }
 	slp_tsk();
 
 	for ( ; ; );
