@@ -407,9 +407,9 @@ ALABEL(dispatcher_2)
      */
     str   w19, [x21]            /* excpt_nest_count = 1 */
 
-#ifdef TOPPERS_CUSTOM_IDLE
-    toppers_asm_custom_idle
-#else
+//#ifdef TOPPERS_CUSTOM_IDLE
+//    toppers_asm_custom_idle
+//#else
     mov   x0, #(DAIF_ALWAYS_SET) /* 割り込み許可 */
     msr   daif, x0
     isb                         /* シミュレータ環境ではISBを入れないと */
@@ -417,7 +417,7 @@ ALABEL(dispatcher_2)
     nop
     mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET) /* CPUロック */
     msr   daif, x0
-#endif /* TOPPERS_CUSTOM_IDLE */
+//#endif /* TOPPERS_CUSTOM_IDLE */
     ldr   w22, [x20]            /* reqflgがfalseならdispatcher_2へ */
     cmp   w22, wzr
     b.eq  dispatcher_2
