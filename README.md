@@ -4,7 +4,7 @@
 
 ### bootcode.bin, start.elfの取得
 
-以下からbootcode.binとstart.elfをダウンロードする
+以下からbootcode.binとstart.elfをダウンロードする  
 https://github.com/raspberrypi/firmware/tree/master/boot
 
 ### config.txtの用意
@@ -13,12 +13,14 @@ https://github.com/raspberrypi/firmware/tree/master/boot
 
 ### fmp.binのビルド
 
+```
 cd fmp/build/sample
 make fmp.bin
+```
 
 ### SDカードの準備
 
-SDカードをFAT32でフォーマットする
+SDカードをFAT32でフォーマットする  
 以下ファイルをSDカード直下に置いてRaspberry Piに挿す
 
  - bootcode.bin
@@ -29,9 +31,12 @@ SDカードをFAT32でフォーマットする
 ### シリアルコンソールの接続
 
 TTL-232R-3V3を使用する場合
-GPIO14(TXD1) - Yellow(RXD)
-GPIO15(RXD1) - Orange(TXD)
-Ground - Ground
+
+RPiのピン | 結線 | TTL-232R-3V3のピン
+---|---|---
+GPIO14(TXD1) | - | Yellow(RXD)
+GPIO15(RXD1) | - | Orange(TXD)
+Ground | - | Ground |
 
 ボーレートは115200bpsになる
 
