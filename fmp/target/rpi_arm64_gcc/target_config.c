@@ -193,16 +193,6 @@ target_mmu_init(void)
 void
 target_initialize(void)
 {
-    uint64_t tmp;
-
-	/*
-	 *  SMPモードを有効化
-     *  これを行わないとコア間でデータキャッシュのコヒーレンシが保てない
-	 */
-    CPUECTLR_EL1_READ(tmp);
-    tmp |= CPUECTLR_SMPEN_BIT;
-    CPUECTLR_EL1_WRITE(tmp);
-
 	/*
 	 *  バナー表示，低レベル出力用にUARTを初期化
 	 */

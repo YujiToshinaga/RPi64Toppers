@@ -144,77 +144,79 @@
 #define AUX_ENABLES_MU_EN_BIT   (0x1 << 0)
 #define AUX_ENABLES_SPI1_EN_BIT (0x1 << 1)
 #define AUX_ENABLES_SPI2_EN_BIT (0x1 << 2)
-
 #define MU_IO_DATA_SHIFT        0
 #define MU_IO_DATA_MASK         (0xff << 0)
 #define MU_IER_EN_TX_INT_BIT    (0x1 << 1)
 #define MU_IER_EN_RX_INT_BIT    (0x1 << 0)
 #define MU_IIR_FIFO_CLR         (0x3 << 1)
+#define MU_LCR_DS_8BIT          (0x3 << 0)
 #define MU_LSR_TX_IDLE_BIT      (0x1 << 6)
 #define MU_LSR_TX_EMPTY_BIT     (0x1 << 5)
 #define MU_LSR_RX_OVR_BIT       (0x1 << 1)
 #define MU_LSR_DATA_RDY_BIT     (0x1 << 0)
+#define MU_CNTL_TX_EN_BIT       (0x1 << 1)
+#define MU_CNTL_RX_EN_BIT       (0x1 << 0)
 
 #define CTRL_REG                0x40000000
 #define CORE_TIMER_PRE          0x40000008
-#define GPU_INT_ROUTE           0x4000000C
+#define GPU_INT_ROUTE           0x4000000c
 #define PMON_INT_RS             0x40000010
 #define PMON_INT_RC             0x40000014
-#define CORE_TIMER_LS           0x4000001C
+#define CORE_TIMER_LS           0x4000001c
 #define CORE_TIMER_MS           0x40000020
 #define LOCAL_INT_ROUTE         0x40000024
-#define AXI_OUTSTAND_COUNT      0x4000002C
+#define AXI_OUTSTAND_COUNT      0x4000002c
 #define AXI_OUTSTAND_IRQ        0x40000030
 #define LOCAL_TCS               0x40000034
 #define LOCAL_TWF               0x40000038
 #define CORE0_TICTL             0x40000040
 #define CORE1_TICTL             0x40000044
 #define CORE2_TICTL             0x40000048
-#define CORE3_TICTL             0x4000004C
+#define CORE3_TICTL             0x4000004c
 #define CORE0_MICTL             0x40000050
 #define CORE1_MICTL             0x40000054
 #define CORE2_MICTL             0x40000058
-#define CORE3_MICTL             0x4000005C
+#define CORE3_MICTL             0x4000005c
 #define CORE0_IRQ_SRC           0x40000060
 #define CORE1_IRQ_SRC           0x40000064
 #define CORE2_IRQ_SRC           0x40000068
-#define CORE3_IRQ_SRC           0x4000006C
+#define CORE3_IRQ_SRC           0x4000006c
 #define CORE0_FIQ_SRC           0x40000070
 #define CORE1_FIQ_SRC           0x40000074
 #define CORE2_FIQ_SRC           0x40000078
-#define CORE3_FIQ_SRC           0x4000007C
+#define CORE3_FIQ_SRC           0x4000007c
 #define CORE0_MBOX0_WS          0x40000080
 #define CORE0_MBOX1_WS          0x40000084
 #define CORE0_MBOX2_WS          0x40000088
-#define CORE0_MBOX3_WS          0x4000008C
+#define CORE0_MBOX3_WS          0x4000008c
 #define CORE1_MBOX0_WS          0x40000090
 #define CORE1_MBOX1_WS          0x40000094
 #define CORE1_MBOX2_WS          0x40000098
-#define CORE1_MBOX3_WS          0x4000009C
-#define CORE2_MBOX0_WS          0x400000A0
-#define CORE2_MBOX1_WS          0x400000A4
-#define CORE2_MBOX2_WS          0x400000A8
-#define CORE2_MBOX3_WS          0x400000AC
-#define CORE3_MBOX0_WS          0x400000B0
-#define CORE3_MBOX1_WS          0x400000B4
-#define CORE3_MBOX2_WS          0x400000B8
-#define CORE3_MBOX3_WS          0x400000BC
-#define CORE0_MBOX0_RW          0x400000C0
-#define CORE0_MBOX1_RW          0x400000C4
-#define CORE0_MBOX2_RW          0x400000C8
-#define CORE0_MBOX3_RW          0x400000CC
-#define CORE1_MBOX0_RW          0x400000D0
-#define CORE1_MBOX1_RW          0x400000D4
-#define CORE1_MBOX2_RW          0x400000D8
-#define CORE1_MBOX3_RW          0x400000DC
-#define CORE2_MBOX0_RW          0x400000E0
-#define CORE2_MBOX1_RW          0x400000E4
-#define CORE2_MBOX2_RW          0x400000E8
-#define CORE2_MBOX3_RW          0x400000EC
-#define CORE3_MBOX0_RW          0x400000F0
-#define CORE3_MBOX1_RW          0x400000F4
-#define CORE3_MBOX2_RW          0x400000F8
-#define CORE3_MBOX3_RW          0x400000FC
+#define CORE1_MBOX3_WS          0x4000009c
+#define CORE2_MBOX0_WS          0x400000a0
+#define CORE2_MBOX1_WS          0x400000a4
+#define CORE2_MBOX2_WS          0x400000a8
+#define CORE2_MBOX3_WS          0x400000ac
+#define CORE3_MBOX0_WS          0x400000b0
+#define CORE3_MBOX1_WS          0x400000b4
+#define CORE3_MBOX2_WS          0x400000b8
+#define CORE3_MBOX3_WS          0x400000bc
+#define CORE0_MBOX0_RW          0x400000c0
+#define CORE0_MBOX1_RW          0x400000c4
+#define CORE0_MBOX2_RW          0x400000c8
+#define CORE0_MBOX3_RW          0x400000cc
+#define CORE1_MBOX0_RW          0x400000d0
+#define CORE1_MBOX1_RW          0x400000d4
+#define CORE1_MBOX2_RW          0x400000d8
+#define CORE1_MBOX3_RW          0x400000dc
+#define CORE2_MBOX0_RW          0x400000e0
+#define CORE2_MBOX1_RW          0x400000e4
+#define CORE2_MBOX2_RW          0x400000e8
+#define CORE2_MBOX3_RW          0x400000ec
+#define CORE3_MBOX0_RW          0x400000f0
+#define CORE3_MBOX1_RW          0x400000f4
+#define CORE3_MBOX2_RW          0x400000f8
+#define CORE3_MBOX3_RW          0x400000fc
 
 #define CORE_TICTL_CNTPS_IRQ_BIT    0x01
 #define CORE_TICTL_CNTP_IRQ_BIT     0x02
