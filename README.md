@@ -16,8 +16,8 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
 
  - Raspberry Pi 3 + 電源
  
- - SDカード  
- FAT32フォーマットされたSDカードを用意する  
+ - microSDカード + カードリーダー  
+ FAT32フォーマットされたmicroSDカードを用意する  
  数十MB程度の空きがあれば十分である
  
  - USBシリアル変換ケーブル  
