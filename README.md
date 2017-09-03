@@ -22,7 +22,7 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  
  - USBシリアル変換ケーブル  
  シリアルコンソールで通信するために使用する  
- TTL-232R-3V3を使用した
+ TTL-232R-3V3を使用した  
 
  - Windows PC  
  Cygwinを用いてビルドを行う  
@@ -78,8 +78,11 @@ FAT32フォーマットされたSDカード直下に
 
 ### シリアルコンソールの接続
 
-Raspberry PiのTXD1, RXD1をシリアルデバイスと接続する  
-ボーレートは115200bpsにする
+Raspberry PiのGPIO14(TXD1), GPIO15(RXD1), Groundをシリアルデバイスと接続する  
+ボーレートは115200bpsを設定する
+
+Raspberry Piのピン配置  
+https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/README.md
 
 TTL-232R-3V3を使用する場合
 
@@ -88,12 +91,6 @@ RPiのピン | 結線 | TTL-232R-3V3のピン
 GPIO14(TXD1) | - | Yellow(RXD)
 GPIO15(RXD1) | - | Orange(TXD)
 Ground | - | Ground |
-
-参考：Raspberry Piのピン配置  
-https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/README.md
-
-参考：TTL-232R-3V3の概要  
-http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf
 
 ## 起動
 
