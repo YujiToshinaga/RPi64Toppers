@@ -4,8 +4,8 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
 
 ## 概要
 
- - TOPPERS/FMPカーネル(https://www.toppers.jp)を移植
- - Raspberry Pi 3のARMv8 AArch64モード
+ - TOPPERS/FMPカーネルを移植 (https://www.toppers.jp)
+ - Raspberry Pi 3のARMv8 AArch64モードで動作
  - 4コアで動作
  - キャッシュ，MMUはON
  - 各コアのARM Generic Timerを使用
@@ -36,7 +36,7 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  make, perl, git, gcc-core, gcc-g++
 
  - コンパイラ  
- 以下からフリーのAArch64用コンパイラを入手する  
+ 以下からフリーのARMv8 AArch64用コンパイラを入手する  
  https://www.linaro.org/downloads/  
  開発ではWindows用の以下Versionのものを使用した  
  gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf  
@@ -44,7 +44,7 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf/bin/aarch64-elf-gcc```
  にpathに通す
 
- - ターミナルアプリ
+ - ターミナルアプリ  
  シリアルコンソールで通信するためにTera Termなどをインストールしておく
 
 ## ビルド
@@ -71,7 +71,7 @@ FAT32フォーマットされたSDカード直下に
  https://github.com/raspberrypi/firmware/tree/master/boot
 
  - config.txt  
- このリポジトリからconfig.txtを取得する
+ このリポジトリの```RPi64Toppers/config.txt```を使用する
  
  - fmp.bin  
  ビルドしたfmp.binを使用する
@@ -89,10 +89,10 @@ GPIO14(TXD1) | - | Yellow(RXD)
 GPIO15(RXD1) | - | Orange(TXD)
 Ground | - | Ground |
 
-参考：Raspberry Piのピン配置
+参考：Raspberry Piのピン配置  
 https://www.raspberrypi.org/documentation/usage/gpio-plus-and-raspi2/README.md
 
-参考：TTL-232R-3V3の概要
+参考：TTL-232R-3V3の概要  
 http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf
 
 ## 起動
