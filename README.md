@@ -22,18 +22,18 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  
  - USBシリアル変換ケーブル  
  シリアルコンソールで通信するために使用する  
- TTL-232R-3V3を使用した  
+ TTL-232R-3V3を使用した
 
- - Windows PC
- Cygwinを用いてビルドを行う
+ - Windows PC  
+ Cygwinを用いてビルドを行う  
  説明は省くがLinux PCでも可
 
 ## 開発環境の構築
 
- - Cygwin
- WindwosPCにCygwinをインストールする
- おそらく以下パッケージが必要
- make, perl, git, gcc-core, gcc-g++
+ - Cygwin  
+ WindwosPCにCygwinをインストールする  
+ おそらく以下パッケージが必要  
+ make, perl, git, gcc-core, gcc-g++  
 
  - コンパイラ  
  以下からフリーのARMv8 AArch64用コンパイラを入手する  
@@ -67,14 +67,14 @@ FAT32フォーマットされたSDカード直下に
 以下の4ファイルを置いてRaspberry Piに挿す
 
  - bootcode.bin, start.elf  
- 以下からbootcode.binとstart.elfをダウンロードする  
+ 以下から```bootcode.bin```と```start.elf```をダウンロードする  
  https://github.com/raspberrypi/firmware/tree/master/boot
 
  - config.txt  
  このリポジトリの```RPi64Toppers/config.txt```を使用する
  
  - fmp.bin  
- ビルドしたfmp.binを使用する
+ ビルドした```fmp.bin```を使用する
 
 ### シリアルコンソールの接続
 
