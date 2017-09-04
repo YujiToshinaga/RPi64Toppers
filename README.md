@@ -61,8 +61,8 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
 ```
 git clone https://github.com/YujiToshinaga/RPi64Toppers.git
 cd RPi64Toppers/fmp
-mkdir test
-cd test
+mkdir build
+cd build
 perl ../configure -T rpi_arm64_gcc
 make fmp.bin
 ```
