@@ -41,7 +41,7 @@
  */
 
 /*
- *  memo
+ *  各レジスタの役割
  *  x8  : pcb
  *  x9  : p_runtsk
  *  x10 : 割込み要因
@@ -136,7 +136,7 @@ ALABEL(release_lock_end)
     /*
      *  割り込み要因の判定．
      */
-ALABEL(intno_c)
+ALABEL(intno_c)					/* コア割込みの判定 */
     my_core_index x0
     ldr   x1, =CORE0_IRQ_SRC
     ldr   w2, [x1, x0, lsl #2]
@@ -154,7 +154,7 @@ ALABEL(intno_c_check)
     cmp   w10, #32
     b.eq  intno_b
     b     intno_exit
-ALABEL(intno_b)
+ALABEL(intno_b)					/* ベーシック割込みの判定 */
     mov   w10, #32
     ldr   x1, =IRQ_PEND_B
     ldr   w2, [x1]
@@ -173,7 +173,7 @@ ALABEL(intno_b_check)
     cmp   w10, #64
     b.eq  intno_1
     b     intno_exit
-ALABEL(intno_1)
+ALABEL(intno_1)					/* 割込み1の判定 */
     mov   w10, #64
     ldr   x1, =IRQ_PEND_1
     ldr   w2, [x1]
@@ -192,7 +192,7 @@ ALABEL(intno_2)
     mov   w10, #96
     ldr   x1, =IRQ_PEND_2
     ldr   w2, [x1]
-ALABEL(intno_2_loop)
+ALABEL(intno_2_loop)			/* 割込み2の判定 */
     tst   w2, #0x1
     b.ne  intno_2_check
     lsr   w2, w2, #1
@@ -201,10 +201,10 @@ ALABEL(intno_2_loop)
     b.ne  intno_2_loop
 ALABEL(intno_2_check)
     cmp   w10, #128
-    b.eq  intno_no
+    b.eq  intno_unknown
     b     intno_exit
-ALABEL(intno_no)
-    mov   w10, #31
+ALABEL(intno_unknown)
+    mov   w10, #IRQNO_UNKNOWN
 ALABEL(intno_exit)
 
 //    /*
@@ -271,6 +271,11 @@ ALABEL(cur_spx_irq_handler_1)
 //    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
 //    add   x1, x1, x0
 
+	/*
+	 *  NMIであるタイマ，Mailboxをここでクリアしておく．
+	 *  TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止にしておく
+	 *         こうしないと，全割込み許可した瞬間に再度同じ割込みが発生してしまう．
+	 */
     cmp   w10, #IRQNO_CNTP
     b.eq  int_tim
     cmp   w10, #IRQNO_MBOX0
@@ -285,55 +290,38 @@ ALABEL(cur_spx_irq_handler_1)
     b.eq  int_gpu
     cmp   w10, #IRQNO_AUX
     b.eq  int_aux
-    cmp   w10, #31
-    b.eq  int_non
-    b     int_unknown
+    b     int_exit
 int_tim:
     msr   cntp_ctl_el0, xzr
     b     int_exit
 int_mbox0:
-    ldr   x0, =CORE0_MBOX0_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE0_MBOX0_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox1:
-    ldr   x0, =CORE1_MBOX1_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE1_MBOX1_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox2:
-    ldr   x0, =CORE2_MBOX2_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE2_MBOX2_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox3:
-    ldr   x0, =CORE3_MBOX3_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE3_MBOX3_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_gpu:
     b     int_exit
 int_aux:
-//    // UART割込み禁止
-//    ldr   x0, =MU_IER
-//    ldr   w1, [x0]
-//    mov   w2, #3
-//    mvn   w2, w2
-//    and   w1, w1, w2
-//    str   w1, [x0]
     ldr   x0, =DISABLE_IRQ_1
     ldr   w1, =0x20000000
     str   w1, [x0]
     b     int_exit
-int_non:
-    b     int_exit
-int_unknown:
-    b     int_exit
 int_exit:
-
-
-
-
 
 	stp   x11, x12, [sp, #-16]!
 						/* "この時点"のスタックを保存 */
@@ -366,7 +354,7 @@ int_exit:
     /*
      *  割込みの空振りは出口へ
      */
-    cmp   w10, #31
+    cmp   w10, #IRQNO_UNKNOWN
     b.eq  target_ret_int
 
     /*
@@ -408,24 +396,17 @@ ALABEL(target_ret_int)
 	ldr   x2, [x8, #PCB_iipm]	/* (モデル上の)割込み優先度マスクをセット */
 	str   w12, [x2]
 
+    /*
+	 * TODO : 割込み優先度の概念が未実装なので，個別に割込みを許可にしておく
+	 */
     cmp   w10, #IRQNO_AUX
     b.eq  int_aux_out
-    b     int_unknown_out
+    b     int_exit_out
 int_aux_out:
-//    // UART割込み許可
-//    ldr   x0, =MU_IER
-//    ldr   w1, [x0]
-//    mov   w2, #3
-//    orr   w1, w1, w2
-//    str   w1, [x0]
     ldr   x0, =ENABLE_IRQ_1
     ldr   w1, =0x20000000
     str   w1, [x0]
-int_unknown_out:
-
-
-
-
+int_exit_out:
 
 	/*
 	 *  スタックポインタの復帰
@@ -436,7 +417,6 @@ int_unknown_out:
 	 *  後の処理はARM依存部で実行
 	 */
 	b     ret_int
-
 
 /*
  *  ターゲット依存の例外入口処理

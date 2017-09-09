@@ -54,7 +54,7 @@ void task1(intptr_t exinf)
 	syslog(LOG_NOTICE, "prc %d : TASK1 %d", (int)exinf, cnt[(int)exinf - 1]);
 
     if ((int)exinf == 1) {
-        if (cnt[0] >= 10) {
+        if (cnt[0] == 5) {
             syslog(LOG_NOTICE, "prc %d : kick cpu1", (int)exinf);
             act_tsk(task1_id[1]);
         }
