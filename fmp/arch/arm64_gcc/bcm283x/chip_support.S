@@ -217,13 +217,19 @@ ALABEL(intno_exit)
 //    b.eq  ret_int_2
 //#endif /* TOPPERS_SAFEG_SECURE */
 
-// TODO : プロセッサ間割込みのバイパスを実装する
 #ifdef USE_IPI_DIS_HANDER_BYPASS
-//    cmp   w10, #IPINO_DIS
-//    b.ne  cur_spx_irq_handler_0
-//    ldr   x0, =(GICC_EOIR)
-//    str   w14, [x0]				/* EOIレジスタへの書き込み */
-//    b     ret_int_ipi_dispatch
+    my_core_index x0
+	add   w1, x0, #IRQNO_MBOX0
+    cmp   w10, w1
+    b.ne  cur_spx_irq_handler_0
+    ldr   x1, =CORE0_MBOX0_RC
+	lsl   x2, x0, #2
+	lsl   x3, x0, #4
+	add   x3, x2, x3
+	add   x1, x1, x3
+    ldr   w4, =0xffffffff
+    str   w4, [x1]
+    b.ne  ret_int_ipi_dispatch
 ALABEL(cur_spx_irq_handler_0)
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
@@ -266,7 +272,7 @@ ALABEL(cur_spx_irq_handler_1)
 //    add   x1, x1, x0
 
 	/*
-	 *  NMIであるタイマ，Mailboxをここでクリアしておく．
+	 *  NMIであるタイマ，Mailboxの割込みをここでクリアしておく．
 	 *  TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止にしておく
 	 *         こうしないと，全割込み許可した瞬間に再度同じ割込みが
 	 *         発生してしまう．
@@ -281,8 +287,6 @@ ALABEL(cur_spx_irq_handler_1)
     b.eq  int_mbox2
     cmp   w10, #IRQNO_MBOX3
     b.eq  int_mbox3
-    cmp   w10, #IRQNO_GPU
-    b.eq  int_gpu
     cmp   w10, #IRQNO_AUX
     b.eq  int_aux
     b     int_exit
@@ -308,8 +312,6 @@ int_mbox3:
     ldr   x0, =CORE3_MBOX3_RC
     ldr   w1, =0xffffffff
     str   w1, [x0]
-    b     int_exit
-int_gpu:
     b     int_exit
 int_aux:
     ldr   x0, =DISABLE_IRQ_1
