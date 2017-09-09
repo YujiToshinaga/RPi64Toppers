@@ -96,10 +96,10 @@ chip_mprc_initialize(void)
 	sil_wrw_mem((void *)CORE1_MICTL, 0x2U);
 	sil_wrw_mem((void *)CORE2_MICTL, 0x4U);
 	sil_wrw_mem((void *)CORE3_MICTL, 0x8U);
-	sil_wrw_mem((void *)CORE0_MBOX0_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE1_MBOX1_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE2_MBOX2_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE3_MBOX3_RW, 0xffffffffU);
+	sil_wrw_mem((void *)CORE0_MBOX0_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE1_MBOX1_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE2_MBOX2_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE3_MBOX3_RC, 0xffffffffU);
 
 	/*
 	 *  割込みを初期化

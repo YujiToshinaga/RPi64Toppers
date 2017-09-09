@@ -158,16 +158,16 @@ target_ipi_clear(void)
 {
 	switch(x_prc_index() + 1) {
 	case 1:
-		sil_wrw_mem((void *)CORE0_MBOX0_RW, 0xffffffffU);
+		sil_wrw_mem((void *)CORE0_MBOX0_RC, 0xffffffffU);
 		break;
 	case 2:
-		sil_wrw_mem((void *)CORE1_MBOX1_RW, 0xffffffffU);
+		sil_wrw_mem((void *)CORE1_MBOX1_RC, 0xffffffffU);
 		break;
 	case 3:
-		sil_wrw_mem((void *)CORE2_MBOX2_RW, 0xffffffffU);
+		sil_wrw_mem((void *)CORE2_MBOX2_RC, 0xffffffffU);
 		break;
 	case 4:
-		sil_wrw_mem((void *)CORE3_MBOX3_RW, 0xffffffffU);
+		sil_wrw_mem((void *)CORE3_MBOX3_RC, 0xffffffffU);
 		break;
 	}
 }
