@@ -99,10 +99,10 @@ typedef struct {
 	uint64_t x27;
 	uint64_t x28;
 	uint64_t x29;
-#ifdef USE_GIC_CPULOCK
-	uint64_t lock_flag;
-	uint64_t saved_iipm;
-#endif /* USE_GIC_CPULOCK */
+//#ifdef USE_GIC_CPULOCK
+//	uint64_t lock_flag;
+//	uint64_t saved_iipm;
+//#endif /* USE_GIC_CPULOCK */
 	uint64_t ipm;
 	uint64_t nest_count;
 	uint64_t pc;

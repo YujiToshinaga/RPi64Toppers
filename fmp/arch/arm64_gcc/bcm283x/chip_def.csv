@@ -13,7 +13,5 @@ offsetof_PCB_p_inh_tbl,"offsetof(PCB,target_pcb.p_inh_tbl)"
 offsetof_PCB_p_inh_iipm_tbl,"offsetof(PCB,target_pcb.p_inh_iipm_tbl)"
 offsetof_PCB_p_iipm_mask_tbl,"offsetof(PCB,target_pcb.p_iipm_mask_tbl)"
 offsetof_PCB_iipm,"offsetof(PCB,target_pcb.iipm)"
-offsetof_PCB_saved_iipm,#defined(USE_GIC_CPULOCK),,"offsetof(PCB,target_pcb.saved_iipm)"
-offsetof_PCB_lock_flag,#defined(USE_GIC_CPULOCK),,"offsetof(PCB,target_pcb.lock_flag)"
 TOPPERS_SAFEG_SECURE,#defined(TOPPERS_SAFEG_SECURE)
 TOPPERS_SAFEG_NONSECURE,#defined(TOPPERS_SAFEG_NONSECURE)

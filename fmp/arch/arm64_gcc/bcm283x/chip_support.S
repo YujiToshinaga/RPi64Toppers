@@ -207,13 +207,6 @@ ALABEL(intno_unknown)
     mov   w10, #IRQNO_UNKNOWN
 ALABEL(intno_exit)
 
-//    /*
-//     *  spurious割込み(INT_ID=1023(0x03ff))の場合，割込み処理を終了
-//     */
-//    ldr   w0, =(0x03ff)
-//    cmp   w0, w10
-//    b.eq  ret_int_2
-
 //#ifdef TOPPERS_SAFEG_SECURE
 //    /*
 //     *  割込みグループをサポートしている場合は(INT_ID=1022(0x03fe))も
@@ -224,6 +217,7 @@ ALABEL(intno_exit)
 //    b.eq  ret_int_2
 //#endif /* TOPPERS_SAFEG_SECURE */
 
+// TODO : プロセッサ間割込みのバイパスを実装する
 #ifdef USE_IPI_DIS_HANDER_BYPASS
 //    cmp   w10, #IPINO_DIS
 //    b.ne  cur_spx_irq_handler_0
@@ -274,7 +268,8 @@ ALABEL(cur_spx_irq_handler_1)
 	/*
 	 *  NMIであるタイマ，Mailboxをここでクリアしておく．
 	 *  TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止にしておく
-	 *         こうしないと，全割込み許可した瞬間に再度同じ割込みが発生してしまう．
+	 *         こうしないと，全割込み許可した瞬間に再度同じ割込みが
+	 *         発生してしまう．
 	 */
     cmp   w10, #IRQNO_CNTP
     b.eq  int_tim
@@ -421,6 +416,7 @@ int_exit_out:
 /*
  *  ターゲット依存の例外入口処理
  */
+// TODO : ターゲット依存の例外処理を実装する
     ATEXT
     AGLOBAL(target_exc_handler)
 ALABEL(target_exc_handler)

@@ -81,14 +81,6 @@ chip_mprc_initialize(void)
 	ext_ker_reqflg = false;
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
-//#ifdef USE_GIC_CPULOCK
-//	/*
-//	 *  CPUロックフラグ実現のための変数の初期化
-//	 */
-//	(get_my_p_tpcb())->lock_flag = true;
-//	(get_my_p_tpcb())->saved_iipm = IIPM_ENAALL;
-//#endif /* USE_GIC_CPULOCK */
-
 	/*
 	 *  プロセッサ間割込みを初期化
 	 */
@@ -180,18 +172,6 @@ chip_exit(void)
 	 *  ARM64依存の終了処理
 	 */
 	core_exit();
-
-//	/*
-//	 *  GICのCPUインタフェースを停止
-//	 */
-//	gicc_stop();
-//
-//	/*
-//	 *  GIC Distributorを停止
-//	 */
-//	if (x_sense_mprc()) {
-//		gicd_stop();
-//	}
 }
 
 /*
@@ -216,6 +196,7 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 	 */
 	x_disable_int(intno);
 
+	// TODO: 割込み優先度マスクの概念を実装する
 //	/*
 //	 *  属性を設定
 //	 */
@@ -267,8 +248,7 @@ default_int_handler(void){
 void
 ext_ker_request(void)
 {
-//	ID prcid;
-//	volatile int i;
+	ID prcid;
 
 	/* すでに要求が出ていればリターン */
 	if (ext_ker_reqflg) {
@@ -277,16 +257,11 @@ ext_ker_request(void)
 
 	ext_ker_reqflg = true;
 
-//	for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
-//		if (prcid != ID_PRC(x_prc_index())) {
-//			gic_raise_sgi(x_gic_target(prcid - 1), IPINO_EXT);
-//			/*
-//			 * gic_raise_sgi()を連続して発行すると割込みを正しく付けない
-//			 * プロセッサがいるためループを挿入
-//			 */
-//			for(i = 0; i < 10; i++);
-//		}
-//	}
+	for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
+		if (prcid != ID_PRC(x_prc_index())) {
+			target_ipi_raise(prcid);
+		}
+	}
 }
 
 /*

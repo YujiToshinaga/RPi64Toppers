@@ -103,19 +103,6 @@ x_prc_index(void)
 	return index;
 }
 
-///*
-// *  GICのtarget cpuへの変換
-// */
-//Inline uint8_t
-//x_gic_target(uint32_t prc_index)
-//{
-//	uint8_t target;
-//
-//	target = 0x1 << prc_index;
-//
-//	return target;
-//}
-
 #ifdef USE_IPI_DIS_HANDER_BYPASS
 /*
  *  カーネル終了処理要求
@@ -208,17 +195,7 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 #endif /* TOPPERS_MACRO_ONLY */
 
 /*
- *  割込み優先度マスク操作ライブラリ（PL390（GIC）用）
- *
- *  GICでは，GIC内の優先度レジスタにCPUの割込み優先度マスク（IPM）を設定する．  
- *  割込み優先度マスクは値が大きいほど低優先度である．
- *  割込み優先度マスクの段階はGICの実装時のパラメータにより，256,64,32,16 から
- *  選択可能である． 
- * 
- *  IPMを保存しておくために，割込み優先度の外部表現（-1から連続した負の値）
- *  を使うことも可能であるが，余計な計算が必要になる．これを避けるため，IPMを
- *  保存する場合には，GICで扱う優先度の形式とする．この値を割込み優先度マスク
- *  の内部表現と呼び，IIPMと書くことにする． 
+ *  割込み優先度マスク操作ライブラリ
  */
 
 /*
@@ -227,6 +204,7 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
  *  アセンブリ言語のソースファイルからインクルードする場合のために，型
  *  キャストしない定義も用意している．
  */
+// TODO : 割込み優先度の概念を実装する
 //#ifndef TOPPERS_MACRO_ONLY
 //#define EXT_IPM(iipm)    ((PRI)(iipm - GICC_PMR_MASK))    /* 内部表現を外部表現に */
 //#define INT_IPM(ipm)    ((uint8_t)(ipm + GICC_PMR_MASK))  /* 外部表現を内部表現に */
@@ -252,6 +230,7 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 /*
  *  IPM（ハードウェアの割込み優先度マスク，内部表現）の現在値の読出し
  */
+// TODO : 割込み優先度の概念を実装する
 Inline uint8_t
 current_iipm(void)
 {
@@ -262,6 +241,7 @@ current_iipm(void)
 /*
  *  IPM（ハードウェアの割込み優先度マスク，内部表現）の現在値の設定
  */
+// TODO : 割込み優先度の概念を実装する
 Inline void
 set_iipm(uint8_t iipm)
 {
@@ -269,205 +249,6 @@ set_iipm(uint8_t iipm)
 }
 
 #endif /* TOPPERS_MACRO_ONLY */
-
-//#ifdef USE_GIC_CPULOCK
-//
-///*
-// *  USE_GIC_CPULOCK時の設定
-// */
-//
-//#define IIPM_LOCK 0x00
-//
-//#ifndef TOPPERS_MACRO_ONLY
-//
-///*
-// *  コンテキストの参照(USE_GIC_CPULOCK時)
-// *
-// *  ARMでは，タスクコンテキストと非タスクコンテキストの両方をスーパー
-// *  バイザーモードで動作させる．そのため，CPSRの内容では判別できない．
-// *  そのため，例外（割込み/CPU例外）のネスト回数をカウントする変数
-// *  （excpt_nest_count）を用意し，例外の入り口でインクリメントすること
-// *  で，コンテキストを判定する．
-// */
-//Inline bool_t
-//sense_context(void)
-//{
-//	uint32_t tmp;
-//	uint8_t saved_iipm;
-//	TPCB* my_p_tpcb;
-//
-//	/*
-//	 *  マイグレーションされることを考慮して割込みを禁止してからチェッ
-//	 *  クする．
-//	 */
-//	saved_iipm = current_iipm();
-//	set_iipm(IIPM_LOCK);
-//	ARM_MEMORY_CHANGED;
-//	my_p_tpcb = get_my_p_tpcb();
-//	tmp = my_p_tpcb->excpt_nest_count;
-//	set_iipm(saved_iipm);
-//	ARM_MEMORY_CHANGED;
-//
-//	return(tmp > 0U);
-//}
-//
-///*
-// *  CPUロック状態への移行(USE_GIC_CPULOCK時)
-// *
-// *  IPM（ハードウェアの割込み優先度マスク）を，saved_iipmに保存し，カー
-// *  ネル管理外のものを除くすべての割込みをマスクする値（TIPM_LOCK）に設
-// *  定する．また，lock_flagをtrueにする．
-// *
-// *  IPMが，最初からTIPM_LOCKと同じかそれより高い場合には，それを
-// *  saved_iipmに保存するのみで，TIPM_LOCKには設定しない．これはモデル
-// *  上の割込み優先度マスクが，TIPM_LOCKと同じかそれより高いレベルに設定
-// *  されている状態にあたる．
-// *
-// *  この関数は，CPUロック状態（lock_flagがtrueの状態）で呼ばれることは
-// *  ないものと想定している．
-// */
-//Inline void
-//x_lock_cpu(void)
-//{
-//	uint8_t iipm;
-//
-//	/*
-//	*  current_iipm()の返り値を直接saved_iipmに保存せず，一時変数iipm
-//	*  を用いているのは，current_iipm()を呼んだ直後に割込みが発生し，
-//	*  起動された割込み処理でsaved_iipmが変更される可能性があるためで
-//	*  ある．
-//	*/
-//	iipm = current_iipm();
-//	set_iipm(IIPM_LOCK);
-//	get_my_p_tpcb()->saved_iipm = iipm;
-//	get_my_p_tpcb()->lock_flag = true;
-//
-//	/* クリティカルセクションの前後でメモリが書き換わる可能性がある */
-//	ARM_MEMORY_CHANGED;
-//}
-//
-//#define t_lock_cpu()    x_lock_cpu()
-//#define i_lock_cpu()    x_lock_cpu()
-//
-///*
-// *  CPUロック状態の解除(USE_GIC_CPULOCK時)
-// *
-// *  lock_flagをfalseにし，IPM（ハードウェアの割込み優先度マスク）を，
-// *  saved_iipmに保存した値に戻す．
-// *
-// *  この関数は，CPUロック状態（lock_flagがtrueの状態）でのみ呼ばれるも
-// *  のと想定している．
-// */
-//Inline void
-//x_unlock_cpu(void)
-//{
-//	/* クリティカルセクションの前後でメモリが書き換わる可能性がある */
-//	ARM_MEMORY_CHANGED;
-//	get_my_p_tpcb()->lock_flag = false;
-//	set_iipm(get_my_p_tpcb()->saved_iipm);
-//}
-//
-//#define t_unlock_cpu()    x_unlock_cpu()
-//#define i_unlock_cpu()    x_unlock_cpu()
-//
-///*
-// *  CPUロック状態の参照(USE_GIC_CPULOCK時)
-// */
-//Inline bool_t
-//x_sense_lock(void)
-//{
-//	return(get_my_p_tpcb()->lock_flag);
-//}
-//
-//#define t_sense_lock()    x_sense_lock()
-//#define i_sense_lock()    x_sense_lock()
-//
-///*
-// * （モデル上の）割込み優先度マスクの設定(USE_GIC_CPULOCK時)
-// *
-// *  CPUロックフラグがクリアされている時は，ハードウェアの割込み優先度マ
-// *  スクを設定する．CPUロックフラグがセットされている時は，saved_iipm
-// *  を設定し，さらに，ハードウェアの割込み優先度マスクを，設定しようと
-// *  した（モデル上の）割込み優先度マスクとTIPM_LOCKの高い方に設定する．
-// */
-//Inline void
-//x_set_ipm(PRI intpri)
-//{
-//	uint8_t   iipm = INT_IPM(intpri);
-//
-//	if (!get_my_p_tpcb()->lock_flag) {
-//		set_iipm(iipm);
-//	}
-//	else {
-//		get_my_p_tpcb()->saved_iipm = iipm;
-//		/*
-//		 *  OS内からのみ呼び出されるため，この時点でハードウェアの割込み優先
-//		 *  度マスクが必ず最大値に設定されているため，設定する必要はない．
-//		 */
-//	}
-//}
-//
-//#define t_set_ipm(intpri)    x_set_ipm(intpri)
-//#define i_set_ipm(intpri)    x_set_ipm(intpri)
-//
-///*
-// * （モデル上の）割込み優先度マスクの参照(USE_GIC_CPULOCK時)
-// *
-// *  CPUロックフラグがクリアされている時はハードウェアの割込み優先度マ
-// *  スクを，セットされている時はsaved_iipmを参照する．
-// */
-//Inline PRI
-//x_get_ipm(void)
-//{
-//	uint8_t iipm;
-//
-//	if (!get_my_p_tpcb()->lock_flag) {
-//		iipm = current_iipm();
-//	}
-//	else {
-//		iipm = get_my_p_tpcb()->saved_iipm;
-//	}
-//	return(EXT_IPM(iipm));
-//}
-//
-//#define t_get_ipm()    x_get_ipm()
-//#define i_get_ipm()    x_get_ipm()
-//
-///*
-// *  CPU例外の発生した時の(モデル上の)割込み優先度マスクの参照(USE_GIC_CPULOCK時)
-// */
-//Inline PRI
-//exc_get_ipm(void *p_excinf)
-//{
-//	if (!((exc_frame_t *)(p_excinf))->lock_flag) {
-//		return((PRI)(((exc_frame_t *)(p_excinf))->ipm));
-//	}
-//	else {
-//		return((PRI)(((exc_frame_t *)(p_excinf))->saved_iipm));
-//	}
-//}
-//
-///*
-// * CPUロック状態か(USE_GIC_CPULOCK時)
-// */
-//Inline bool_t
-//exc_sense_lock(void *p_excinf)
-//{
-//	return(((exc_frame_t *)(p_excinf))->lock_flag);
-//}
-//
-///*
-// * 割込みロック状態か(USE_GIC_CPULOCK時)
-// */
-//Inline bool_t
-//exc_sense_int_lock(void *p_excinf)
-//{
-//	return(((exc_frame_t *)(p_excinf))->lock_flag);
-//}
-//
-//#endif /* TOPPERS_MACRO_ONLY */
-//
-//#else /* USE_GIC_CPULOCK */
 
 #ifndef TOPPERS_MACRO_ONLY
 
@@ -496,8 +277,6 @@ x_get_ipm(void)
 #define i_get_ipm() x_get_ipm()
 
 #endif /* TOPPERS_MACRO_ONLY */
-
-//#endif /* USE_GIC_CPULOCK */
 
 #ifndef TOPPERS_MACRO_ONLY
 
@@ -578,6 +357,7 @@ x_enable_int(INTNO intno)
 /*
  * 割込み要求のクリア
  */
+// TODO : 割込み優先度の概念を実装する
 Inline void
 x_clear_int(INTNO intno)
 {

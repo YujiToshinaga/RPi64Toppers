@@ -172,7 +172,7 @@ x_sense_mprc(void){
  *  は，各ターゲット依存部で取り扱う
  */
 
-#ifndef USE_GIC_CPULOCK
+//#ifndef USE_GIC_CPULOCK
 
 /*
  *  コンテキストの参照
@@ -246,7 +246,7 @@ x_sense_lock(void)
 #define t_sense_lock()    x_sense_lock()
 #define i_sense_lock()    x_sense_lock()
 
-#endif /* USE_GIC_CPULOCK */
+//#endif /* USE_GIC_CPULOCK */
 
 /*
  *  タスクコンテキスト かつ CPUロック解除状態なら true
@@ -375,7 +375,7 @@ exc_get_sr(void *p_excinf)
 	return((uint32_t)(((exc_frame_t *)(p_excinf))->cpsr));
 }
 
-#ifndef USE_GIC_CPULOCK
+//#ifndef USE_GIC_CPULOCK
 
 /*
  *  CPU例外の発生した時の(モデル上の)割込み優先度マスクの参照
@@ -404,7 +404,7 @@ exc_sense_int_lock(void *p_excinf)
 	return((exc_get_sr(p_excinf) & DAIF_INTLOCK) == DAIF_INTLOCK);
 }
 
-#endif /* USE_GIC_CPULOCK */
+//#endif /* USE_GIC_CPULOCK */
 
 /*
  *  CPU例外の発生した時のコンテキストと割込みのマスク状態の参照

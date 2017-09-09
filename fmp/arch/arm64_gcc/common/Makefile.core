@@ -21,9 +21,6 @@ LIBS := $(LIBS) -lgcc
 #
 #  カーネルに関する定義
 #
-#KERNEL_DIR := $(KERNEL_DIR):$(COREDIR)
-#KERNEL_ASMOBJS := $(KERNEL_ASMOBJS) core_support.o gic_support.o
-#KERNEL_COBJS := $(KERNEL_COBJS) core_config.o core_timer.o arm64.o gic.o
 KERNEL_DIR := $(KERNEL_DIR):$(COREDIR)
 KERNEL_ASMOBJS := $(KERNEL_ASMOBJS) core_support.o
 KERNEL_COBJS := $(KERNEL_COBJS) core_config.o core_timer.o arm64.o

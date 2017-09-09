@@ -91,18 +91,6 @@ typedef struct target_processor_control_block {
 	 * 割込み優先度
 	 */
 	uint8_t iipm;
-
-//#ifdef USE_GIC_CPULOCK
-//	/*
-//	 * 割込み優先度をマスクする変数
-//	 */
-//	uint8_t saved_iipm;
-//
-//	/*
-//	 * CPUロックフラグの値を保持する変数
-//	 */
-//	bool_t lock_flag;
-//#endif /* USE_GIC_CPULOCK */
 } TPCB;
 
 /*
