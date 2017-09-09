@@ -889,7 +889,7 @@ ALABEL(cur_spx_sync_handler)
 
 /*
  *  IRQ 例外ハンドラ
- *  IRQ例外ハンドラはGICドライバで定義
+ *  IRQ例外ハンドラはCHIP依存部で定義
  */
 //    ATEXT
 //    AALIGN(2)

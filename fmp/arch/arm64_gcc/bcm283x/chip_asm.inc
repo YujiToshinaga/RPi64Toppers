@@ -66,38 +66,6 @@
 	ldr   \re_reg, [\re_reg, \sc_reg1, lsl #3]
 .endm
 
-//#ifdef USE_GIC_CPULOCK
-//
-//.macro gic_lock reg1, reg2 // reg1 : x, reg2 : w
-//	ldr   \reg1, =(GICC_PMR)
-//	mov   \reg2, #0
-//	str   \reg2, [\reg1]
-//	dsb sy
-//.endm
-//
-//.macro gic_unlock reg1, reg2 // reg1 : x, reg2 : w
-//	ldr   \reg1, =(GICC_PMR)
-//	mov   \reg2, #(IIPM_ENAALL << GICC_PMR_OFFSET)
-//	str   \reg2, [\reg1]
-//	dsb sy
-//.endm
-//
-//.macro gic_lock_cpu reg1, reg2, reg3 // reg1 : x, reg2 : x, reg3 : w
-//	gic_lock \reg1, \reg3
-//	my_pcb \reg1, \reg2
-//	mov   \reg3, #1
-//	str   \reg3, [\reg1, #PCB_lock_flag]
-//.endm  
-//
-//.macro gic_unlock_cpu reg1, reg2, reg3 // reg1 : x, reg2 : x, reg3 : w
-//	my_pcb \reg1, \reg2
-//	mov   \reg3, #0
-//	str   \reg3, [\reg1, #PCB_lock_flag]
-//	gic_unlock \reg1, \reg3
-//.endm  
-//
-//#endif /* USE_GIC_CPULOCK */
-
 #include "arm64_gcc/common/core_asm.inc"
 
 #endif /* TOPPERS_CHIP_ASM_INC */
