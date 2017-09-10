@@ -234,8 +234,9 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 Inline uint8_t
 current_iipm(void)
 {
+	TPCB *p_tpcb = get_my_p_tpcb();
+	return(p_tpcb->iipm);
 //	return(gicc_current_priority());
-	return 0;
 }
 
 /*
@@ -245,6 +246,8 @@ current_iipm(void)
 Inline void
 set_iipm(uint8_t iipm)
 {
+	TPCB *p_tpcb = get_my_p_tpcb();
+	p_tpcb->iipm = iipm;
 //	gicc_set_priority(iipm);
 }
 
