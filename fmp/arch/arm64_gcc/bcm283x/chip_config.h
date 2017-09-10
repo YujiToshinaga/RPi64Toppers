@@ -234,8 +234,9 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 Inline uint8_t
 current_iipm(void)
 {
+	TPCB *p_tpcb = get_my_p_tpcb();
+	return(p_tpcb->iipm);
 //	return(gicc_current_priority());
-	return 0;
 }
 
 /*
@@ -245,6 +246,8 @@ current_iipm(void)
 Inline void
 set_iipm(uint8_t iipm)
 {
+	TPCB *p_tpcb = get_my_p_tpcb();
+	p_tpcb->iipm = iipm;
 //	gicc_set_priority(iipm);
 }
 
@@ -309,6 +312,7 @@ x_disable_int(INTNO intno)
 	}
 
     if ((0 <= id) && (id < 32)) {
+		// 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
 		sil_wrw_mem((void *)(DISABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {                   
@@ -341,6 +345,7 @@ x_enable_int(INTNO intno)
 	}
 
     if ((0 <= id) && (id < 32)) {
+		// 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
 		sil_wrw_mem((void *)(ENABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {

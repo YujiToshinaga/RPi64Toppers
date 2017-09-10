@@ -63,6 +63,8 @@ uint32_t TOPPERS_spn_var;
 static bool_t ext_ker_reqflg;
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
+uint32_t _kernel_prc4_iipm_mask_table[(TNUM_INTPRI + 1) * 4];
+
 /*
  *  str_ker() の実行前にマスタプロセッサのみ実行される初期化処理
  */
@@ -128,7 +130,7 @@ chip_initialize(void)
 	/*
 	 *  タイマを有効化
 	 */
-    sil_wrw_mem((void *)(CORE0_TICTL + x_prc_index() * 4),
+    sil_wrw_mem((void *)((int64_t)CORE0_TICTL + x_prc_index() * 4),
             CORE_TICTL_CNTP_IRQ_BIT);
 
 	/*
@@ -196,7 +198,7 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 	 */
 	x_disable_int(intno);
 
-	// TODO: 割込み優先度マスクの概念を実装する
+	// MEMO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
 //	/*
 //	 *  属性を設定
 //	 */
@@ -207,11 +209,13 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 //		gicd_config(intno, false, true);
 //	}
 
-//	/*
-//	 *  割込み優先度マスクの設定
-//	 */
+	// MEMO : 割込み優先度はハードウェアが未サポート
+	/*
+	 *  割込み優先度マスクの設定
+	 */
 //	gicd_set_priority(INTNO_MASK(intno), INT_IPM(intpri));    
 
+	// MEMO : ターゲットCPUの設定はハードウェアが未サポート
 //	/*
 //	 *  ターゲットCPUの設定（グローバル割込みのみ）
 //	 */
