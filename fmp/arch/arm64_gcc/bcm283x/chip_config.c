@@ -63,6 +63,8 @@ uint32_t TOPPERS_spn_var;
 static bool_t ext_ker_reqflg;
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
+uint32_t _kernel_prc4_iipm_mask_table[(TNUM_INTPRI + 1) * 4];
+
 /*
  *  str_ker() の実行前にマスタプロセッサのみ実行される初期化処理
  */
@@ -81,14 +83,6 @@ chip_mprc_initialize(void)
 	ext_ker_reqflg = false;
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
-//#ifdef USE_GIC_CPULOCK
-//	/*
-//	 *  CPUロックフラグ実現のための変数の初期化
-//	 */
-//	(get_my_p_tpcb())->lock_flag = true;
-//	(get_my_p_tpcb())->saved_iipm = IIPM_ENAALL;
-//#endif /* USE_GIC_CPULOCK */
-
 	/*
 	 *  プロセッサ間割込みを初期化
 	 */
@@ -96,10 +90,10 @@ chip_mprc_initialize(void)
 	sil_wrw_mem((void *)CORE1_MICTL, 0x2U);
 	sil_wrw_mem((void *)CORE2_MICTL, 0x4U);
 	sil_wrw_mem((void *)CORE3_MICTL, 0x8U);
-	sil_wrw_mem((void *)CORE0_MBOX0_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE1_MBOX1_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE2_MBOX2_RW, 0xffffffffU);
-	sil_wrw_mem((void *)CORE3_MBOX3_RW, 0xffffffffU);
+	sil_wrw_mem((void *)CORE0_MBOX0_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE1_MBOX1_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE2_MBOX2_RC, 0xffffffffU);
+	sil_wrw_mem((void *)CORE3_MBOX3_RC, 0xffffffffU);
 
 	/*
 	 *  割込みを初期化
@@ -136,7 +130,7 @@ chip_initialize(void)
 	/*
 	 *  タイマを有効化
 	 */
-    sil_wrw_mem((void *)(CORE0_TICTL + x_prc_index() * 4),
+    sil_wrw_mem((void *)((int64_t)CORE0_TICTL + x_prc_index() * 4),
             CORE_TICTL_CNTP_IRQ_BIT);
 
 	/*
@@ -180,18 +174,6 @@ chip_exit(void)
 	 *  ARM64依存の終了処理
 	 */
 	core_exit();
-
-//	/*
-//	 *  GICのCPUインタフェースを停止
-//	 */
-//	gicc_stop();
-//
-//	/*
-//	 *  GIC Distributorを停止
-//	 */
-//	if (x_sense_mprc()) {
-//		gicd_stop();
-//	}
 }
 
 /*
@@ -216,6 +198,7 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 	 */
 	x_disable_int(intno);
 
+	// MEMO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
 //	/*
 //	 *  属性を設定
 //	 */
@@ -226,11 +209,13 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 //		gicd_config(intno, false, true);
 //	}
 
-//	/*
-//	 *  割込み優先度マスクの設定
-//	 */
+	// MEMO : 割込み優先度はハードウェアが未サポート
+	/*
+	 *  割込み優先度マスクの設定
+	 */
 //	gicd_set_priority(INTNO_MASK(intno), INT_IPM(intpri));    
 
+	// MEMO : ターゲットCPUの設定はハードウェアが未サポート
 //	/*
 //	 *  ターゲットCPUの設定（グローバル割込みのみ）
 //	 */
@@ -267,8 +252,7 @@ default_int_handler(void){
 void
 ext_ker_request(void)
 {
-//	ID prcid;
-//	volatile int i;
+	ID prcid;
 
 	/* すでに要求が出ていればリターン */
 	if (ext_ker_reqflg) {
@@ -277,16 +261,11 @@ ext_ker_request(void)
 
 	ext_ker_reqflg = true;
 
-//	for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
-//		if (prcid != ID_PRC(x_prc_index())) {
-//			gic_raise_sgi(x_gic_target(prcid - 1), IPINO_EXT);
-//			/*
-//			 * gic_raise_sgi()を連続して発行すると割込みを正しく付けない
-//			 * プロセッサがいるためループを挿入
-//			 */
-//			for(i = 0; i < 10; i++);
-//		}
-//	}
+	for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
+		if (prcid != ID_PRC(x_prc_index())) {
+			target_ipi_raise(prcid);
+		}
+	}
 }
 
 /*

@@ -41,7 +41,7 @@
  */
 
 /*
- *  memo
+ *  各レジスタの役割
  *  x8  : pcb
  *  x9  : p_runtsk
  *  x10 : 割込み要因
@@ -136,7 +136,7 @@ ALABEL(release_lock_end)
     /*
      *  割り込み要因の判定．
      */
-ALABEL(intno_c)
+ALABEL(intno_c)                 /* コア割込みの判定 */
     my_core_index x0
     ldr   x1, =CORE0_IRQ_SRC
     ldr   w2, [x1, x0, lsl #2]
@@ -154,7 +154,7 @@ ALABEL(intno_c_check)
     cmp   w10, #32
     b.eq  intno_b
     b     intno_exit
-ALABEL(intno_b)
+ALABEL(intno_b)                 /* IRQ Basicの判定 */
     mov   w10, #32
     ldr   x1, =IRQ_PEND_B
     ldr   w2, [x1]
@@ -173,7 +173,7 @@ ALABEL(intno_b_check)
     cmp   w10, #64
     b.eq  intno_1
     b     intno_exit
-ALABEL(intno_1)
+ALABEL(intno_1)                 /* IRQ 1の判定 */
     mov   w10, #64
     ldr   x1, =IRQ_PEND_1
     ldr   w2, [x1]
@@ -192,7 +192,7 @@ ALABEL(intno_2)
     mov   w10, #96
     ldr   x1, =IRQ_PEND_2
     ldr   w2, [x1]
-ALABEL(intno_2_loop)
+ALABEL(intno_2_loop)            /* IRQ 2の判定 */
     tst   w2, #0x1
     b.ne  intno_2_check
     lsr   w2, w2, #1
@@ -201,18 +201,11 @@ ALABEL(intno_2_loop)
     b.ne  intno_2_loop
 ALABEL(intno_2_check)
     cmp   w10, #128
-    b.eq  intno_no
+    b.eq  intno_unknown
     b     intno_exit
-ALABEL(intno_no)
-    mov   w10, #31
+ALABEL(intno_unknown)
+    mov   w10, #IRQNO_UNKNOWN
 ALABEL(intno_exit)
-
-//    /*
-//     *  spurious割込み(INT_ID=1023(0x03ff))の場合，割込み処理を終了
-//     */
-//    ldr   w0, =(0x03ff)
-//    cmp   w0, w10
-//    b.eq  ret_int_2
 
 //#ifdef TOPPERS_SAFEG_SECURE
 //    /*
@@ -225,11 +218,18 @@ ALABEL(intno_exit)
 //#endif /* TOPPERS_SAFEG_SECURE */
 
 #ifdef USE_IPI_DIS_HANDER_BYPASS
-//    cmp   w10, #IPINO_DIS
-//    b.ne  cur_spx_irq_handler_0
-//    ldr   x0, =(GICC_EOIR)
-//    str   w14, [x0]				/* EOIレジスタへの書き込み */
-//    b     ret_int_ipi_dispatch
+    my_core_index x0
+    add   w1, w0, #IRQNO_MBOX0
+    cmp   w10, w1
+    b.ne  cur_spx_irq_handler_0
+    ldr   x1, =CORE0_MBOX0_RC
+    lsl   x2, x0, #2
+    lsl   x3, x0, #4
+    add   x3, x2, x3
+    add   x1, x1, x3
+    ldr   w4, =0xffffffff
+    str   w4, [x1]
+    b.ne  ret_int_ipi_dispatch
 ALABEL(cur_spx_irq_handler_0)
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
@@ -246,31 +246,52 @@ ALABEL(cur_spx_irq_handler_0)
      * 一段目の例外（割込み）ならスタックを変更する
      */
     ldr   x1, [x8, #PCB_istkpt]
-	mov   sp, x1
+    mov   sp, x1
 
 ALABEL(cur_spx_irq_handler_1)
     /*
+     *  割込みの空振りは出口へ
+     */
+    cmp   w10, #IRQNO_UNKNOWN
+    b.eq  target_ret_int_exit
+
+    /*
      *  割込みハンドラのアドレスを取得
      */
-    ldr   x0, [x8, #PCB_p_inh_tbl]	/* 割込みハンドラテーブルの読み込み */
-    ldr   x13, [x0, x10, lsl #3]	/* x13<-割込みハンドラ */
+    ldr   x0, [x8, #PCB_p_inh_tbl]  /* 割込みハンドラテーブルの読み込み */
+    ldr   x13, [x0, x10, lsl #3]    /* x13<-割込みハンドラ */
 
     /*
      *  割込み要因の割込み優先度を求め(モデル上の)割込み優先度マスクをセット
      *  する．またその際，ハンドラ実行前の(モデル上の)割込み優先度マスクを
      *  保存する．
      */
-    /* TODO : 割込み優先度マスクテーブルに従って該当の割込みをdisableにする */
-    ldr   x0, [x8, #PCB_p_inh_iipm_tbl]	/* 発生した割込みの優先度を取得 */
-	ldr   w14, [x0, x10, lsl #2]
-	ldr   x2, [x8, #PCB_iipm]	    /* 割込み発生前の割込み優先度を取得 */
-	ldr   w12, [x2]              
-	str   w1, [x2]			        /* 発生した割込みの優先度をiipmにセット */
-//    add   x0, x14, #TNUM_INTPRI
-//    lsl   x0, x0, #4		/* x16 */
+    ldr   x0, [x8, #PCB_p_inh_iipm_tbl] /* 発生した割込みの優先度を取得 */
+    ldr   w14, [x0, x10, lsl #2]
+    ldr   x1, [x8, #PCB_iipm]       /* 割込み発生前の割込み優先度を取得 */
+    ldr   w12, [x1]              
+    str   w14, [x1]                 /* 発生した割込みの優先度をiipmにセット */
+
+//    /* TODO : 割込み優先度の概念を実装する */
+//    add   w0, w14, #31            /* 割込み優先度マスク先頭アドレスを取得 */
+//    lsl   w0, w0, #2
+//    lsl   w0, w0, #2
 //    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
 //    add   x1, x1, x0
+//    ldr   w2, [x1, #0x4]          /* 優先度の低い割込みをdisableにする */
+//    ldr   x3, =DISABLE_IRQ_B
+//    str   w2, [x3]
+//    ldr   w2, [x1, #0x8]
+//    ldr   x3, =DISABLE_IRQ_1
+//    str   w2, [x3]
+//    ldr   w2, [x1, #0xc]
+//    ldr   x3, =DISABLE_IRQ_2
+//    str   w2, [x3]
 
+    /*
+     *  NMIであるタイマ，Mailboxの割込みをここでクリアしておく．
+     */
+    // TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止しておく
     cmp   w10, #IRQNO_CNTP
     b.eq  int_tim
     cmp   w10, #IRQNO_MBOX0
@@ -281,66 +302,46 @@ ALABEL(cur_spx_irq_handler_1)
     b.eq  int_mbox2
     cmp   w10, #IRQNO_MBOX3
     b.eq  int_mbox3
-    cmp   w10, #IRQNO_GPU
-    b.eq  int_gpu
     cmp   w10, #IRQNO_AUX
     b.eq  int_aux
-    cmp   w10, #31
-    b.eq  int_non
-    b     int_unknown
+    nop
+    b     int_exit
 int_tim:
     msr   cntp_ctl_el0, xzr
     b     int_exit
 int_mbox0:
-    ldr   x0, =CORE0_MBOX0_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE0_MBOX0_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox1:
-    ldr   x0, =CORE1_MBOX1_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE1_MBOX1_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox2:
-    ldr   x0, =CORE2_MBOX2_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
+    ldr   x0, =CORE2_MBOX2_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_mbox3:
-    ldr   x0, =CORE3_MBOX3_RW
-    ldr   x1, =0xffffffff
-    str   x1, [x0]
-    b     int_exit
-int_gpu:
+    ldr   x0, =CORE3_MBOX3_RC
+    ldr   w1, =0xffffffff
+    str   w1, [x0]
     b     int_exit
 int_aux:
-//    // UART割込み禁止
-//    ldr   x0, =MU_IER
-//    ldr   w1, [x0]
-//    mov   w2, #3
-//    mvn   w2, w2
-//    and   w1, w1, w2
-//    str   w1, [x0]
     ldr   x0, =DISABLE_IRQ_1
     ldr   w1, =0x20000000
     str   w1, [x0]
     b     int_exit
-int_non:
-    b     int_exit
-int_unknown:
-    b     int_exit
 int_exit:
 
-
-
-
-
-	stp   x11, x12, [sp, #-16]!
-						/* "この時点"のスタックを保存 */
-						/* 割込み発生前の割込み優先度マスクをスタックに保存 */
-	stp   x14, x10, [sp, #-16]!
-						/* TODO : 発生した割込みの割込み優先度 */
-						/* inhno を保存  */
+    stp   x11, x12, [sp, #-16]!
+                        /* "この時点"のスタックを保存 */
+                        /* 割込み発生前の割込み優先度マスクをスタックに保存 */
+    stp   x14, x10, [sp, #-16]!
+                        /* 発生した割込みの割込み優先度 */
+                        /* inhno を保存  */
 
 //#ifdef TOPPERS_SAFEG_LOAD
 //    stp   x10, x13, [sp, #-16]!
@@ -352,102 +353,110 @@ int_exit:
      *  割り込み許可
      */
 #ifndef ENABLE_NMFI
-	mov   x0, #(DAIF_ALWAYS_SET)
-	msr   daif, x0
+    mov   x0, #(DAIF_ALWAYS_SET)
+    msr   daif, x0
 #endif  /* ENABLE_NMFI */
 
 #ifdef LOG_INH_ENTER
-	mov   x0, x13				/* inhno をパラメータに */
-	str   x13, [sp, #-16]!
-	bl    log_inh_enter			/* log_inh_enterを呼び出す */
-	ldr   x13, [sp], #16
+    mov   x0, x13               /* inhno をパラメータに */
+    str   x13, [sp, #-16]!
+    bl    log_inh_enter         /* log_inh_enterを呼び出す */
+    ldr   x13, [sp], #16
 #endif /* LOG_INH_ENTER */
-
-    /*
-     *  割込みの空振りは出口へ
-     */
-    cmp   w10, #31
-    b.eq  target_ret_int
 
     /*
      *  割込みハンドラの呼び出し
      */
-	blr   x13
+    blr   x13
 
 ALABEL(target_ret_int)
-	/*
-	 *  割込みハンドラからの戻り
-	 */
-	ldp   x14, x10, [sp], #16	/* GICC_IAR から取得した内容を保存  */
-								/* inhno を復帰  */
+    /*
+     *  割込みハンドラからの戻り
+     */
+    ldp   x14, x10, [sp], #16   /* GICC_IAR から取得した内容を保存  */
+                                /* inhno を復帰  */
 
-//    ldr   x0, =(GICC_EOIR)  /* EOIレジスタへの書き込み */
+//    ldr   x0, =(GICC_EOIR)    /* EOIレジスタへの書き込み */
 //    str   w14, [x0]
 
 #ifdef LOG_INH_LEAVE
-	bl    log_inh_leave  /* log_inh_leaveを呼び出す */
+    bl    log_inh_leave         /* log_inh_leaveを呼び出す */
 #endif /* LOG_INH_LEAVE */
 
-	/*
-	 *  カーネル管理の割込みを禁止する
-	 */
-	mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET) /* CPUロック状態へ */
-	msr   daif, x0
+    /*
+     *  カーネル管理の割込みを禁止する
+     */
+    mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET) /* CPUロック状態へ */
+    msr   daif, x0
 
     /*
      *  PCBの取得
      */
     my_pcb x8, x0
 
-	/*
-	 *  割込み優先度マスクを元に戻す
-	 */
-	ldp   x11, x12, [sp], #16	/* 元のスタックポインタを取得 */
-								/* 元の割込み優先度マスクを取得 */
-    /* TODO : 割込み優先度マスクテーブルに従って該当の割込みをenableにする */
-	ldr   x2, [x8, #PCB_iipm]	/* (モデル上の)割込み優先度マスクをセット */
-	str   w12, [x2]
+    /*
+     *  割込み優先度マスクを元に戻す
+     */
+    ldp   x11, x12, [sp], #16   /* 元のスタックポインタを取得 */
+                                /* 元の割込み優先度マスクを取得 */
 
+    ldr   x2, [x8, #PCB_iipm]   /* (モデル上の)割込み優先度マスクをセット */
+    str   w12, [x2]
+
+//    /* TODO : 割込み優先度の概念を実装する */
+//    add   w0, w12, #31          /* 割込み優先度マスク先頭アドレスを取得 */
+//    lsl   w0, w0, #2
+//    lsl   w0, w0, #2
+//    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
+//    add   x1, x1, x0
+//
+//    ldr   w2, [x1, #0x4]        /* 優先度の低い割込みをdisableにする */
+//    mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_B
+//    str   w2, [x3]
+//
+//    ldr   w2, [x1, #0x8]
+//    mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_1
+//    str   w2, [x3]
+//
+//    ldr   w2, [x1, #0xc]
+//    mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_2
+//    str   w2, [x3]
+
+    // TODO : 割込み優先度の概念が未実装なので，個別に割込みを許可しておく
     cmp   w10, #IRQNO_AUX
     b.eq  int_aux_out
-    b     int_unknown_out
+    b     int_exit_out
 int_aux_out:
-//    // UART割込み許可
-//    ldr   x0, =MU_IER
-//    ldr   w1, [x0]
-//    mov   w2, #3
-//    orr   w1, w1, w2
-//    str   w1, [x0]
     ldr   x0, =ENABLE_IRQ_1
     ldr   w1, =0x20000000
     str   w1, [x0]
-int_unknown_out:
+int_exit_out:
 
+ALABEL(target_ret_int_exit)
+    /*
+     *  スタックポインタの復帰
+     */
+    mov   sp, x11
 
-
-
-
-	/*
-	 *  スタックポインタの復帰
-	 */
-	mov   sp, x11
-
-	/*
-	 *  後の処理はARM依存部で実行
-	 */
-	b     ret_int
-
+    /*
+     *  後の処理はARM依存部で実行
+     */
+    b     ret_int
 
 /*
  *  ターゲット依存の例外入口処理
  */
+// TODO : ターゲット依存の例外処理を実装する
     ATEXT
     AGLOBAL(target_exc_handler)
 ALABEL(target_exc_handler)
     b     target_exc_handler
-//    mov   x11, sp         		/* この時点のスタックを復帰のため取得 */
+//    mov   x11, sp               /* この時点のスタックを復帰のため取得 */
 //
-////    ldr   x0, =(GICC_PMR)		/* 例外発生前の割込み優先度マスクを取得 */
+////    ldr   x0, =(GICC_PMR)       /* 例外発生前の割込み優先度マスクを取得 */
 //    ldr   w16, [x0]
 ////    asr   w16, w16, #GICC_PMR_OFFSET /* 外部表現に変更 */
 ////    sub   w16, w16, #(GICC_PMR_MASK)
@@ -461,8 +470,8 @@ ALABEL(target_exc_handler)
 //    my_pcb x8, x0
 //    ldr   w17, [x8, #PCB_excpt_nest_count]
 //    stp   x16, x17, [sp, #-16]!
-//    				/* 例外発生前の割込み優先度マスクをスタックに保存 */
-//    				/* excpt_nest_count をスタックに保存．*/
+//                    /* 例外発生前の割込み優先度マスクをスタックに保存 */
+//                    /* excpt_nest_count をスタックに保存．*/
 //
 ////#ifdef USE_GIC_CPULOCK
 ////    ldrb  w0, [x8, #PCB_lock_flag]
@@ -519,26 +528,26 @@ ALABEL(target_exc_handler)
 //     */
 //    my_pcb x8, x0
 //    ldr   w14, [x8, #PCB_locspnid]
-//    str   x14, [sp, #-16]!		/* excno を保存 */
+//    str   x14, [sp, #-16]!        /* excno を保存 */
 //
 //    /*
 //     * 割込み発生前の割込み優先度マスクをスタックに保存
 //     * 割込みハンドラと出口ルーチンを共有するために保存
 //     */
-////    ldr   x0, =(GICC_PMR)		/* 例外発生前の割込み優先度マスクを取得 */
+////    ldr   x0, =(GICC_PMR)        /* 例外発生前の割込み優先度マスクを取得 */
 //    ldr   w12, [x0]
 //
 //    stp   x11, x12, [sp, #-16]!
-//    					/* 復帰用のスタックポインタの保存 */
-//    					/* 例外発生前の割込み優先度マスクをスタックに保存 */
+//                        /* 復帰用のスタックポインタの保存 */
+//                        /* 例外発生前の割込み優先度マスクをスタックに保存 */
 //
 //    /*
 //     *  CPU例外ハンドラの起動番地を取得
 //     */
-//    ldr   x0, [x8, #PCB_p_exch_tbl]	/* 割込みハンドラテーブルの読み出し */
-//    ldr   x13, [x0, x10, lsl #3]	/* x13<-例外ハンドラ                 */
+//    ldr   x0, [x8, #PCB_p_exch_tbl]    /* 割込みハンドラテーブルの読み出し */
+//    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ                 */
 //
-//    str   x10, [sp, #-16]!		/* excno を保存 */
+//    str   x10, [sp, #-16]!        /* excno を保存 */
 //
 //    /*
 //     *  割り込み許可
@@ -552,8 +561,8 @@ ALABEL(target_exc_handler)
 //
 //#ifdef LOG_EXC_ENTER
 //    stp   x13, x15, [sp, #-16]!
-//    mov   x0, x10      			/* excno をパラメータに */
-//    bl	  log_exc_enter  		/* log_exc_enterを呼び出す */
+//    mov   x0, x10                  /* excno をパラメータに */
+//    bl      log_exc_enter          /* log_exc_enterを呼び出す */
 //    ldp   x13, x15, [sp], #16
 //#endif /* LOG_EXC_ENTER */
 //
@@ -566,7 +575,7 @@ ALABEL(target_exc_handler)
 //    blr   x13
 //
 //ALABEL(target_ret_exc)
-//    ldr   x10, [sp], #16		/* excno を復帰  */
+//    ldr   x10, [sp], #16        /* excno を復帰  */
 //
 //#ifdef LOG_EXC_LEAVE
 //    mov   x0, x10
@@ -582,15 +591,15 @@ ALABEL(target_exc_handler)
 //    /*
 //     *  割込み優先度マスクを元に戻す
 //     */
-//    ldp   x11, x12, [sp], #16	/* 元のスタックポインタを取得 */
-//    							/* 元の割込み優先度マスクを取得 */
-////    ldr   x0, =(GICC_PMR)		/* GICにセット */
+//    ldp   x11, x12, [sp], #16    /* 元のスタックポインタを取得 */
+//                                /* 元の割込み優先度マスクを取得 */
+////    ldr   x0, =(GICC_PMR)        /* GICにセット */
 //    str   w12, [x0]
 //
 //    /*
 //     * CPU例外発生時のlocspnidをr0へ
 //     */
-//    ldr   x14, [sp], #16		/* locspinidを取得 */
+//    ldr   x14, [sp], #16        /* locspinidを取得 */
 //
 //    /*
 //     *  スタックポインタの復帰
@@ -624,13 +633,13 @@ ALABEL(target_exc_handler)
 //    mov   sp, x4
 //
 //ALABEL(target_kernel_unc_exc_handler_1)
-//    str   x11, [sp, #-16]!		/* 復帰用のスタックポインタの保存 */
+//    str   x11, [sp, #-16]!        /* 復帰用のスタックポインタの保存 */
 //
 //    /*
 //     *  CPU例外ハンドラの起動番地を取得
 //     */
-//    ldr   x0, [x8, #PCB_p_exch_tbl]	/* 割込みハンドラテーブルの読み出し */
-//    ldr   x13, [x0, x10, lsl #3]	/* x13<-例外ハンドラ                 */
+//    ldr   x0, [x8, #PCB_p_exch_tbl]    /* 割込みハンドラテーブルの読み出し */
+//    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ                 */
 //
 //   /*
 //    * システム状態（コンテキストは除く）を，CPU例外発生時の状態へ
@@ -659,7 +668,7 @@ ALABEL(target_exc_handler)
 //    /*
 //     *  スタックポインタの復帰
 //     */
-//    ldr   x11, [sp], #16			/* 元のスタックポインタを取得 */
+//    ldr   x11, [sp], #16            /* 元のスタックポインタを取得 */
 //    mov   sp, x11
 //
 //    /*

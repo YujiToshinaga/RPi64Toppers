@@ -85,6 +85,7 @@
 #define IRQNO_SPI               118
 #define IRQNO_PCM               119
 #define IRQNO_UART              121
+#define IRQNO_UNKNOWN           128
 
 #define IRQ_PEND_B              0x3f00b200
 #define IRQ_PEND_1              0x3f00b204
@@ -201,22 +202,22 @@
 #define CORE3_MBOX1_WS          0x400000b4
 #define CORE3_MBOX2_WS          0x400000b8
 #define CORE3_MBOX3_WS          0x400000bc
-#define CORE0_MBOX0_RW          0x400000c0
-#define CORE0_MBOX1_RW          0x400000c4
-#define CORE0_MBOX2_RW          0x400000c8
-#define CORE0_MBOX3_RW          0x400000cc
-#define CORE1_MBOX0_RW          0x400000d0
-#define CORE1_MBOX1_RW          0x400000d4
-#define CORE1_MBOX2_RW          0x400000d8
-#define CORE1_MBOX3_RW          0x400000dc
-#define CORE2_MBOX0_RW          0x400000e0
-#define CORE2_MBOX1_RW          0x400000e4
-#define CORE2_MBOX2_RW          0x400000e8
-#define CORE2_MBOX3_RW          0x400000ec
-#define CORE3_MBOX0_RW          0x400000f0
-#define CORE3_MBOX1_RW          0x400000f4
-#define CORE3_MBOX2_RW          0x400000f8
-#define CORE3_MBOX3_RW          0x400000fc
+#define CORE0_MBOX0_RC          0x400000c0
+#define CORE0_MBOX1_RC          0x400000c4
+#define CORE0_MBOX2_RC          0x400000c8
+#define CORE0_MBOX3_RC          0x400000cc
+#define CORE1_MBOX0_RC          0x400000d0
+#define CORE1_MBOX1_RC          0x400000d4
+#define CORE1_MBOX2_RC          0x400000d8
+#define CORE1_MBOX3_RC          0x400000dc
+#define CORE2_MBOX0_RC          0x400000e0
+#define CORE2_MBOX1_RC          0x400000e4
+#define CORE2_MBOX2_RC          0x400000e8
+#define CORE2_MBOX3_RC          0x400000ec
+#define CORE3_MBOX0_RC          0x400000f0
+#define CORE3_MBOX1_RC          0x400000f4
+#define CORE3_MBOX2_RC          0x400000f8
+#define CORE3_MBOX3_RC          0x400000fc
 
 #define CORE_TICTL_CNTPS_IRQ_BIT    0x01
 #define CORE_TICTL_CNTP_IRQ_BIT     0x02

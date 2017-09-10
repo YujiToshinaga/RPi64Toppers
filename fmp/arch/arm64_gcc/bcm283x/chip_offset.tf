@@ -21,6 +21,3 @@ $DEFINE("PCB_p_inh_tbl", offsetof_PCB_p_inh_tbl)$
 $DEFINE("PCB_p_inh_iipm_tbl", offsetof_PCB_p_inh_iipm_tbl)$
 $DEFINE("PCB_p_iipm_mask_tbl", offsetof_PCB_p_iipm_mask_tbl)$
 $DEFINE("PCB_iipm", offsetof_PCB_iipm)$
-
-$DEFINE("PCB_saved_iipm", offsetof_PCB_saved_iipm)$
-$DEFINE("PCB_lock_flag", offsetof_PCB_lock_flag)$
