@@ -260,23 +260,32 @@ ALABEL(cur_spx_irq_handler_1)
      *  する．またその際，ハンドラ実行前の(モデル上の)割込み優先度マスクを
      *  保存する．
      */
-    /* TODO : 割込み優先度マスクテーブルに従って該当の割込みをdisableにする */
     ldr   x0, [x8, #PCB_p_inh_iipm_tbl]	/* 発生した割込みの優先度を取得 */
 	ldr   w14, [x0, x10, lsl #2]
-	ldr   x2, [x8, #PCB_iipm]	    /* 割込み発生前の割込み優先度を取得 */
-	ldr   w12, [x2]              
-	str   w1, [x2]			        /* 発生した割込みの優先度をiipmにセット */
-//    add   x0, x14, #TNUM_INTPRI
-//    lsl   x0, x0, #4		/* x16 */
+	ldr   x1, [x8, #PCB_iipm]	    /* 割込み発生前の割込み優先度を取得 */
+	ldr   w12, [x1]              
+	str   w14, [x1]			        /* 発生した割込みの優先度をiipmにセット */
+
+//    /* TODO : 割込み優先度の概念を実装する */
+//    add   x0, x14, #31				/* 割込み優先度マスク先頭アドレスを取得 */
+//    lsl   x0, x0, #2
+//    lsl   x0, x0, #2
 //    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
 //    add   x1, x1, x0
+//	ldr   w2, [x1, #0x4]			/* 優先度の低い割込みをdisableにする */
+//    ldr   x3, =DISABLE_IRQ_B
+//    str   w2, [x3]
+//	ldr   w2, [x1, #0x8]
+//    ldr   x3, =DISABLE_IRQ_1
+//    str   w2, [x3]
+//	ldr   w2, [x1, #0xc]
+//    ldr   x3, =DISABLE_IRQ_2
+//    str   w2, [x3]
 
 	/*
 	 *  NMIであるタイマ，Mailboxの割込みをここでクリアしておく．
-	 *  TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止にしておく
-	 *         こうしないと，全割込み許可した瞬間に再度同じ割込みが
-	 *         発生してしまう．
 	 */
+    /* TODO : 割込み優先度の概念を実装する */
     cmp   w10, #IRQNO_CNTP
     b.eq  int_tim
     cmp   w10, #IRQNO_MBOX0
@@ -324,7 +333,7 @@ int_exit:
 						/* "この時点"のスタックを保存 */
 						/* 割込み発生前の割込み優先度マスクをスタックに保存 */
 	stp   x14, x10, [sp, #-16]!
-						/* TODO : 発生した割込みの割込み優先度 */
+						/* 発生した割込みの割込み優先度 */
 						/* inhno を保存  */
 
 //#ifdef TOPPERS_SAFEG_LOAD
@@ -389,9 +398,33 @@ ALABEL(target_ret_int)
 	 */
 	ldp   x11, x12, [sp], #16	/* 元のスタックポインタを取得 */
 								/* 元の割込み優先度マスクを取得 */
-    /* TODO : 割込み優先度マスクテーブルに従って該当の割込みをenableにする */
+
 	ldr   x2, [x8, #PCB_iipm]	/* (モデル上の)割込み優先度マスクをセット */
 	str   w12, [x2]
+
+    /* TODO : 割込み優先度の概念を実装する */
+//    add   x0, x12, #31				/* 割込み優先度マスク先頭アドレスを取得 */
+//    lsl   x0, x0, #2
+//    lsl   x0, x0, #2
+//    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
+//    add   x1, x1, x0
+//
+//	ldr   w2, [x1, #0x4]			/* 優先度の低い割込みをdisableにする */
+//	mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_B
+//    str   w2, [x3]
+//
+//	ldr   w2, [x1, #0x8]
+//	mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_1
+//    str   w2, [x3]
+//
+//	ldr   w2, [x1, #0xc]
+//	mvn   w2, w2
+//    ldr   x3, =ENABLE_IRQ_2
+//    str   w2, [x3]
+
+
 
     /*
 	 * TODO : 割込み優先度の概念が未実装なので，個別に割込みを許可にしておく
@@ -404,6 +437,8 @@ int_aux_out:
     ldr   w1, =0x20000000
     str   w1, [x0]
 int_exit_out:
+
+
 
 	/*
 	 *  スタックポインタの復帰

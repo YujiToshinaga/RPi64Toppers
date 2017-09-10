@@ -56,6 +56,7 @@
 /*
  *  ipi_hanlderのバイパス処理を使用するか
  */
+// TODO : 下記定義を有効にしてもビルドエラーになる
 //#define USE_IPI_DIS_HANDER_BYPASS
 
 /*

@@ -186,10 +186,6 @@ chip_exit(void)
 void
 x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 {
-	TPCB *p_tpcb = get_my_p_tpcb();
-	uint32_t mask;
-	int i;
-
 	assert(VALID_INTNO_CFGINT(ID_PRC(x_prc_index()), intno));
 	assert(TMIN_INTPRI <= intpri && intpri <= TMAX_INTPRI);
 
@@ -202,7 +198,7 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 	 */
 	x_disable_int(intno);
 
-	// TODO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
+	// MEMO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
 //	/*
 //	 *  属性を設定
 //	 */
@@ -213,56 +209,13 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 //		gicd_config(intno, false, true);
 //	}
 
-	// TODO : 割込み優先度はハードウェアが未サポート
-	//        ソフトウェアで模擬する
-	//        割込み優先度は静的設定のみサポート
+	// MEMO : 割込み優先度はハードウェアが未サポート
 	/*
 	 *  割込み優先度マスクの設定
 	 */
 //	gicd_set_priority(INTNO_MASK(intno), INT_IPM(intpri));    
-	p_tpcb->p_inh_iipm_tbl[intno] = intpri;
 
-	for (i = TMIN_INTPRI; i <= TMAX_INTPRI + 1; i++) {
-		if (i <= intpri) {
-			if ((0 <= intno) && (intno < 32)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 0];
-				mask = mask | (0x1 << (intno - 0));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 0] = mask;
-			} else if ((32 <= intno) && (intno < 64)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 1];
-				mask = mask | (0x1 << (intno - 32));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 1] = mask;
-			} else if ((64 <= intno) && (intno < 96)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 2];
-				mask = mask | (0x1 << (intno - 64));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 2] = mask;
-			} else if ((96 <= intno) && (intno < 128)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 3];
-				mask = mask | (0x1 << (intno - 96));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 3] = mask;
-			}
-		} else {
-			if ((0 <= intno) && (intno < 32)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 0];
-				mask = mask & ~(0x1 << (intno - 0));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 0] = mask;
-			} else if ((32 <= intno) && (intno < 64)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 1];
-				mask = mask & ~(0x1 << (intno - 32));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 1] = mask;
-			} else if ((64 <= intno) && (intno < 96)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 2];
-				mask = mask & ~(0x1 << (intno - 64));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 2] = mask;
-			} else if ((96 <= intno) && (intno < 128)) {
-				mask = p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 3];
-				mask = mask & ~(0x1 << (intno - 96));
-				p_tpcb->p_iipm_mask_tbl[(intpri - TMIN_INTPRI) * 4 + 3] = mask;
-			}
-		}
-	}
-
-	// TODO : ターゲットCPUの設定はハードウェアが未サポート
+	// MEMO : ターゲットCPUの設定はハードウェアが未サポート
 //	/*
 //	 *  ターゲットCPUの設定（グローバル割込みのみ）
 //	 */
