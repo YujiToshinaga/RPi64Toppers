@@ -219,7 +219,7 @@ ALABEL(intno_exit)
 
 #ifdef USE_IPI_DIS_HANDER_BYPASS
     my_core_index x0
-	add   w1, x0, #IRQNO_MBOX0
+	add   w1, w0, #IRQNO_MBOX0
     cmp   w10, w1
     b.ne  cur_spx_irq_handler_0
     ldr   x1, =CORE0_MBOX0_RC

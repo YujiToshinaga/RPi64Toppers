@@ -309,6 +309,7 @@ x_disable_int(INTNO intno)
 	}
 
     if ((0 <= id) && (id < 32)) {
+		// 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
 		sil_wrw_mem((void *)(DISABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {                   
@@ -341,6 +342,7 @@ x_enable_int(INTNO intno)
 	}
 
     if ((0 <= id) && (id < 32)) {
+		// 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
 		sil_wrw_mem((void *)(ENABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {
