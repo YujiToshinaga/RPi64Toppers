@@ -52,6 +52,7 @@
  *  x15 : 例外フレームの先頭
  *  x16 : 例外発生前の割込み優先度マスク
  *  x17 : excpt_nest_count
+ *  x18 : locspnid
  */
 
 /*
@@ -428,244 +429,238 @@ ALABEL(target_ret_int_exit)
 /*
  *  ターゲット依存の例外入口処理
  */
-// TODO : ターゲット依存の例外処理を実装する
     ATEXT
     AGLOBAL(target_exc_handler)
 ALABEL(target_exc_handler)
-    b     target_exc_handler
-//    mov   x11, sp               /* この時点のスタックを復帰のため取得 */
-//
-////    ldr   x0, =(GICC_PMR)       /* 例外発生前の割込み優先度マスクを取得 */
-//    ldr   w16, [x0]
-////    asr   w16, w16, #GICC_PMR_OFFSET /* 外部表現に変更 */
-////    sub   w16, w16, #(GICC_PMR_MASK)
-//
-//    /*
-//     *  コンテキスト判定のため，excpt_nest_count をスタックに保存．
-//     *  スタックに保存せず，現在のexcpt_nest_countを-1すると取得できるが，
-//     *  スタックに積んでおいた方がデバッグ等が行いやすいので，スタックに
-//     *  保存する．
-//     */
-//    my_pcb x8, x0
-//    ldr   w17, [x8, #PCB_excpt_nest_count]
-//    stp   x16, x17, [sp, #-16]!
-//                    /* 例外発生前の割込み優先度マスクをスタックに保存 */
-//                    /* excpt_nest_count をスタックに保存．*/
-//
-////#ifdef USE_GIC_CPULOCK
-////    ldrb  w0, [x8, #PCB_lock_flag]
-////    ldrb  w1, [x8, #PCB_saved_iipm]
-////    stp   x0, x1, [sp, #-16]!
-////#endif /* USE_GIC_CPULOCK */
-//
-//    /*
-//     *  デバッグのために例外発生前のSP，非破壊レジスタをスタックに保存
-//     */
-//    sub   sp, sp, #(16 * 6)
-//    add   x0, sp, #(EXC_FRAME)
-//    stp   x0, x19, [sp, #0x00]
-//    stp   x20, x21, [sp, #0x10]
-//    stp   x22, x23, [sp, #0x20]
-//    stp   x24, x25, [sp, #0x30]
-//    stp   x26, x27, [sp, #0x40]
-//    stp   x28, x29, [sp, #0x50]
-//
-//    mov   x15,  sp         /* 例外フレーム番地を保存 */
-//
-//    /*
-//     *  カーネル管理外のCPU例外か判定する
-//     *
-//     *  カーネル管理外のCPU例外は，カーネル実行中，全割込みロック状態，
-//     *  CPUロック状態，カーネル管理外の割込みハンドラ実行中に発生した
-//     *  CPU例外である．ARMの場合は，SPSRのI/Fフラグのいずれかが'1'なら，
-//     *  該当する．
-//     */
-//    ldr   x0, [sp, #EXC_FRAME_cpsr] /* 例外フレームからspsrを取得 */
-//    tst   w0, #(DAIF_F_BIT AOR DAIF_I_BIT)
-//    b.ne   target_kernel_unc_exc_handler /* カーネル管理外のCPU例外の処理へ */
-//
-//    /*
-//     *  例外発生時のコンテキストを判定
-//     */
-//    ldr   w1, [x8, #PCB_excpt_nest_count]
-//    add   w1, w1, #1
-//    str   w1, [x8, #PCB_excpt_nest_count]
-//    cmp   w1, #1
-//    b.ne  target_exc_handler_1
-//
-//    /*
-//     *  タスクコンテキストでCPU例外が発生した場合
-//     *  スタックを非タスクコンテキストに切り替える．
-//     */
-//    ldr   x1, [x8, #PCB_istkpt]
-//    mov   sp, x1
-//
-//ALABEL(target_exc_handler_1)
-//
-//    /*
-//     *  locspnidを保存
-//     */
-//    my_pcb x8, x0
-//    ldr   w14, [x8, #PCB_locspnid]
-//    str   x14, [sp, #-16]!        /* excno を保存 */
-//
-//    /*
-//     * 割込み発生前の割込み優先度マスクをスタックに保存
-//     * 割込みハンドラと出口ルーチンを共有するために保存
-//     */
-////    ldr   x0, =(GICC_PMR)        /* 例外発生前の割込み優先度マスクを取得 */
-//    ldr   w12, [x0]
-//
-//    stp   x11, x12, [sp, #-16]!
-//                        /* 復帰用のスタックポインタの保存 */
-//                        /* 例外発生前の割込み優先度マスクをスタックに保存 */
-//
-//    /*
-//     *  CPU例外ハンドラの起動番地を取得
-//     */
-//    ldr   x0, [x8, #PCB_p_exch_tbl]    /* 割込みハンドラテーブルの読み出し */
-//    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ                 */
-//
-//    str   x10, [sp, #-16]!        /* excno を保存 */
-//
-//    /*
-//     *  割り込み許可
-//     *  CPU管理外の例外ハンドラは別ルーチンで呼び出すため，単純にSVCモード
-//     *  にするだけでよい．
-//     */
-//#ifndef ENABLE_NMFI
-//    mov   x0, #(DAIF_ALWAYS_SET)
-//    msr   daif, x0
-//#endif /* ENABLE_NMFI */
-//
-//#ifdef LOG_EXC_ENTER
-//    stp   x13, x15, [sp, #-16]!
-//    mov   x0, x10                  /* excno をパラメータに */
-//    bl      log_exc_enter          /* log_exc_enterを呼び出す */
-//    ldp   x13, x15, [sp], #16
-//#endif /* LOG_EXC_ENTER */
-//
-//    /*
-//     * CPU例外ハンドラの呼び出し
-//     *
-//     * 例外フレームの先頭を引数として渡す
-//     */
-//    mov   x0, x15
-//    blr   x13
-//
-//ALABEL(target_ret_exc)
-//    ldr   x10, [sp], #16        /* excno を復帰  */
-//
-//#ifdef LOG_EXC_LEAVE
-//    mov   x0, x10
-//    bl    log_exc_leave  /* log_exc_leaveを呼び出す */
-//#endif /* LOG_EXC_LEAVE */
-//
-//    /*
-//     *  カーネル管理の割込みを禁止する
-//     */
-//    mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET)
-//    msr   daif, x0
-//
-//    /*
-//     *  割込み優先度マスクを元に戻す
-//     */
-//    ldp   x11, x12, [sp], #16    /* 元のスタックポインタを取得 */
-//                                /* 元の割込み優先度マスクを取得 */
-////    ldr   x0, =(GICC_PMR)        /* GICにセット */
-//    str   w12, [x0]
-//
-//    /*
-//     * CPU例外発生時のlocspnidをr0へ
-//     */
-//    ldr   x14, [sp], #16        /* locspinidを取得 */
-//
-//    /*
-//     *  スタックポインタの復帰
-//     */
-//    mov   sp, x11
-//
-//    /*
-//     *  後の処理はARM依存部で実行
-//     */
-//    b     ret_exc
-//
-//
-///*
-// *  カーネル管理外のCPU例外の出入口処理
-// */
-//ALABEL(target_kernel_unc_exc_handler)
-//    /*
-//     *  割込み発生時のコンテキストを判定
-//     */
-//    ldr   w1, [x8, #PCB_excpt_nest_count]
-//    add   w1, w1, #1
-//    str   w1, [x8, #PCB_excpt_nest_count]
-//    cmp   w1, #1
-//    b.ne   target_kernel_unc_exc_handler_1
-//
-//    /*
-//     * タスクコンテキストでCPU例外が発生した場合
-//     * スタックを非タスクコンテキストに切り替える．
-//     */
-//    ldr   x4, [x8, #PCB_istkpt]
-//    mov   sp, x4
-//
-//ALABEL(target_kernel_unc_exc_handler_1)
-//    str   x11, [sp, #-16]!        /* 復帰用のスタックポインタの保存 */
-//
-//    /*
-//     *  CPU例外ハンドラの起動番地を取得
-//     */
-//    ldr   x0, [x8, #PCB_p_exch_tbl]    /* 割込みハンドラテーブルの読み出し */
-//    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ                 */
-//
-//   /*
-//    * システム状態（コンテキストは除く）を，CPU例外発生時の状態へ
-//    */
-//    ldr   x0, [x15, #EXC_FRAME_cpsr]     /* CPU例外発生前のCPSRの取得 */
-//    and   x0, x0, #(DAIF_I_BIT AOR DAIF_F_BIT)
-//    mov   x1, #DAIF_ALWAYS_SET
-//    orr   x0, x0, x1
-//    msr   daif, x0
-//
-//    /*
-//     *  CPU例外ハンドラの呼び出し
-//     *  例外フレームの先頭を引数として渡す
-//     */
-//    mov   x0, x15
-//    blr   x13
-//
-//    /*
-//     *  例外・割込みのネストカウント（excpt_nest_count)のデクリメント
-//     */
-//    my_pcb x8, x0
-//    ldr   w1, [x8, #PCB_excpt_nest_count]
-//    sub   w1, w1, #1
-//    str   w1, [x8, #PCB_excpt_nest_count]
-//
-//    /*
-//     *  スタックポインタの復帰
-//     */
-//    ldr   x11, [sp], #16            /* 元のスタックポインタを取得 */
-//    mov   sp, x11
-//
-//    /*
-//     *  CPU例外からの復帰
-//     */
-//    ldp   x0, x1, [sp], #16
-//    msr   elr_el1, x0
-//    msr   spsr_el1, x1
-//
-//    ldp   x18, x30, [sp, #0x90]
-//    ldp   x16, x17, [sp, #0x80]
-//    ldp   x14, x15, [sp, #0x70]
-//    ldp   x12, x13, [sp, #0x60]
-//    ldp   x10, x11, [sp, #0x50]
-//    ldp   x8, x9, [sp, #0x40]
-//    ldp   x6, x7, [sp, #0x30]
-//    ldp   x4, x5, [sp, #0x20]
-//    ldp   x2, x3, [sp, #0x10]
-//    ldp   x0, x1, [sp, #0x00]
-//    add   sp, sp, #(16 * 10)
-//    eret
+    mov   x11, sp               /* この時点のスタックを復帰のため取得 */
+
+    /*
+     *  PCBの取得
+     */
+    my_pcb x8, x0
+
+    ldr   w16, [x8, #PCB_iipm]  /* 例外発生前の割込み優先度マスクを取得 */
+
+    /*
+     *  コンテキスト判定のため，excpt_nest_count をスタックに保存．
+     *  スタックに保存せず，現在のexcpt_nest_countを-1すると取得できるが，
+     *  スタックに積んでおいた方がデバッグ等が行いやすいので，スタックに
+     *  保存する．
+     */
+    ldr   w17, [x8, #PCB_excpt_nest_count]
+    stp   x16, x17, [sp, #-16]!
+                    /* 例外発生前の割込み優先度マスクをスタックに保存 */
+                    /* excpt_nest_count をスタックに保存．*/
+
+    /*
+     *  デバッグのために例外発生前のSP，非破壊レジスタをスタックに保存
+     */
+    sub   sp, sp, #(16 * 6)
+    add   x0, sp, #(EXC_FRAME)
+    stp   x0, x19, [sp, #0x00]
+    stp   x20, x21, [sp, #0x10]
+    stp   x22, x23, [sp, #0x20]
+    stp   x24, x25, [sp, #0x30]
+    stp   x26, x27, [sp, #0x40]
+    stp   x28, x29, [sp, #0x50]
+
+    mov   x15,  sp              /* 例外フレーム番地を保存 */
+
+    /*
+     *  カーネル管理外のCPU例外か判定する
+     *
+     *  カーネル管理外のCPU例外は，カーネル実行中，全割込みロック状態，
+     *  CPUロック状態，カーネル管理外の割込みハンドラ実行中に発生した
+     *  CPU例外である．ARMの場合は，SPSRのI/Fフラグのいずれかが'1'なら，
+     *  該当する．
+     */
+    ldr   x0, [sp, #EXC_FRAME_cpsr] /* 例外フレームからspsrを取得 */
+    tst   w0, #(DAIF_F_BIT AOR DAIF_I_BIT)
+    b.ne   target_kernel_unc_exc_handler /* カーネル管理外のCPU例外の処理へ */
+
+    /*
+     *  例外発生時のコンテキストを判定
+     */
+    ldr   w1, [x8, #PCB_excpt_nest_count]
+    add   w1, w1, #1
+    str   w1, [x8, #PCB_excpt_nest_count]
+    cmp   w1, #1
+    b.ne  target_exc_handler_1
+
+    /*
+     *  タスクコンテキストでCPU例外が発生した場合
+     *  スタックを非タスクコンテキストに切り替える．
+     */
+    ldr   x1, [x8, #PCB_istkpt]
+    mov   sp, x1
+
+ALABEL(target_exc_handler_1)
+
+    /*
+     *  locspnidを保存
+     */
+    ldr   w18, [x8, #PCB_locspnid]
+    str   x18, [sp, #-16]!      /* excno を保存 */
+
+    /*
+     *  割込み発生前の割込み優先度マスクをスタックに保存
+     *  割込みハンドラと出口ルーチンを共有するために保存
+     */
+    ldr   w16, [x8, #PCB_iipm]  /* 例外発生前の割込み優先度マスクを取得 */
+
+    stp   x11, x16, [sp, #-16]!
+                        /* 復帰用のスタックポインタの保存 */
+                        /* 例外発生前の割込み優先度マスクをスタックに保存 */
+
+    /*
+     *  CPU例外ハンドラの起動番地を取得
+     */
+    ldr   x0, [x8, #PCB_p_exch_tbl] /* 割込みハンドラテーブルの読み出し */
+    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ */
+
+    str   x10, [sp, #-16]!      /* excno を保存 */
+
+    /*
+     *  割り込み許可
+     *  CPU管理外の例外ハンドラは別ルーチンで呼び出すため，単純にSVCモード
+     *  にするだけでよい．
+     */
+#ifndef ENABLE_NMFI
+    mov   x0, #(DAIF_ALWAYS_SET)
+    msr   daif, x0
+#endif /* ENABLE_NMFI */
+
+#ifdef LOG_EXC_ENTER
+    stp   x13, x15, [sp, #-16]!
+    mov   x0, x10                  /* excno をパラメータに */
+    bl      log_exc_enter          /* log_exc_enterを呼び出す */
+    ldp   x13, x15, [sp], #16
+#endif /* LOG_EXC_ENTER */
+
+    /*
+     * CPU例外ハンドラの呼び出し
+     *
+     * 例外フレームの先頭を引数として渡す
+     */
+    mov   x0, x15
+    blr   x13
+
+ALABEL(target_ret_exc)
+    ldr   x10, [sp], #16        /* excno を復帰  */
+
+#ifdef LOG_EXC_LEAVE
+    mov   x0, x10
+    bl    log_exc_leave  /* log_exc_leaveを呼び出す */
+#endif /* LOG_EXC_LEAVE */
+
+    /*
+     *  カーネル管理の割込みを禁止する
+     */
+    mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET)
+    msr   daif, x0
+
+    /*
+     *  割込み優先度マスクを元に戻す
+     */
+    ldp   x11, x16, [sp], #16    /* 元のスタックポインタを取得 */
+                                /* 元の割込み優先度マスクを取得 */
+    str   w16, [x8, #PCB_iipm]  /* (モデル上の)割込み優先度マスクをセット */
+
+    /*
+     * CPU例外発生時のlocspnidをr0へ
+     */
+    ldr   x18, [sp], #16        /* locspinidを取得 */
+
+    /*
+     *  スタックポインタの復帰
+     */
+    mov   sp, x11
+
+    /*
+     *  後の処理はARM依存部で実行
+     */
+    b     ret_exc
+
+
+/*
+ *  カーネル管理外のCPU例外の出入口処理
+ */
+ALABEL(target_kernel_unc_exc_handler)
+    /*
+     *  割込み発生時のコンテキストを判定
+     */
+    ldr   w1, [x8, #PCB_excpt_nest_count]
+    add   w1, w1, #1
+    str   w1, [x8, #PCB_excpt_nest_count]
+    cmp   w1, #1
+    b.ne   target_kernel_unc_exc_handler_1
+
+    /*
+     * タスクコンテキストでCPU例外が発生した場合
+     * スタックを非タスクコンテキストに切り替える．
+     */
+    ldr   x4, [x8, #PCB_istkpt]
+    mov   sp, x4
+
+ALABEL(target_kernel_unc_exc_handler_1)
+    /*
+     *  PCBの取得
+     */
+    my_pcb x8, x0
+
+    str   x11, [sp, #-16]!      /* 復帰用のスタックポインタの保存 */
+
+    /*
+     *  CPU例外ハンドラの起動番地を取得
+     */
+    ldr   x0, [x8, #PCB_p_exch_tbl] /* 割込みハンドラテーブルの読み出し */
+    ldr   x13, [x0, x10, lsl #3]    /* x13<-例外ハンドラ */
+
+    /*
+     *  システム状態（コンテキストは除く）を，CPU例外発生時の状態へ
+     */
+    ldr   x0, [x15, #EXC_FRAME_cpsr]/* CPU例外発生前のCPSRの取得 */
+    and   x0, x0, #(DAIF_I_BIT AOR DAIF_F_BIT)
+    mov   x1, #DAIF_ALWAYS_SET
+    orr   x0, x0, x1
+    msr   daif, x0
+
+    /*
+     *  CPU例外ハンドラの呼び出し
+     *  例外フレームの先頭を引数として渡す
+     */
+    mov   x0, x15
+    blr   x13
+
+    /*
+     *  例外・割込みのネストカウント（excpt_nest_count)のデクリメント
+     */
+    ldr   w1, [x8, #PCB_excpt_nest_count]
+    sub   w1, w1, #1
+    str   w1, [x8, #PCB_excpt_nest_count]
+
+    /*
+     *  スタックポインタの復帰
+     */
+    ldr   x11, [sp], #16            /* 元のスタックポインタを取得 */
+    mov   sp, x11
+
+    /*
+     *  CPU例外からの復帰
+     */
+    ldp   x0, x1, [sp], #16
+    msr   elr_el1, x0
+    msr   spsr_el1, x1
+
+    ldp   x18, x30, [sp, #0x90]
+    ldp   x16, x17, [sp, #0x80]
+    ldp   x14, x15, [sp, #0x70]
+    ldp   x12, x13, [sp, #0x60]
+    ldp   x10, x11, [sp, #0x50]
+    ldp   x8, x9, [sp, #0x40]
+    ldp   x6, x7, [sp, #0x30]
+    ldp   x4, x5, [sp, #0x20]
+    ldp   x2, x3, [sp, #0x10]
+    ldp   x0, x1, [sp, #0x00]
+    add   sp, sp, #(16 * 10)
+    eret

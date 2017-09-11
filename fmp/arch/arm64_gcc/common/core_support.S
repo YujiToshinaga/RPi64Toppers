@@ -854,8 +854,6 @@ ALABEL(cur_sp0_serr_handler)
     AALIGN(2)
     AGLOBAL(cur_spx_sync_handler)
 ALABEL(cur_spx_sync_handler)
-    mrs   x0, elr_el1				// TODO : デバッグ用にELRを保存中
-    b cur_spx_sync_handler
     /*
      *  レジスタをスタックへ保存
      */
