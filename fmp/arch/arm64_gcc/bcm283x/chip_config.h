@@ -204,20 +204,12 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
  *  アセンブリ言語のソースファイルからインクルードする場合のために，型
  *  キャストしない定義も用意している．
  */
-// TODO : 割込み優先度の概念を実装する
-//#ifndef TOPPERS_MACRO_ONLY
-//#define EXT_IPM(iipm)    ((PRI)(iipm - GICC_PMR_MASK))    /* 内部表現を外部表現に */
-//#define INT_IPM(ipm)    ((uint8_t)(ipm + GICC_PMR_MASK))  /* 外部表現を内部表現に */
-//#else /* TOPPERS_MACRO_ONLY */
-//#define EXT_IPM(iipm)    (iipm - GICC_PMR_MASK)           /* 内部表現を外部表現に */
-//#define INT_IPM(ipm)    (ipm + GICC_PMR_MASK)             /* 外部表現を内部表現に */
-//#endif /* TOPPERS_MACRO_ONLY */
 #ifndef TOPPERS_MACRO_ONLY
-#define EXT_IPM(iipm)    ((PRI)(iipm - 0))    /* 内部表現を外部表現に */
-#define INT_IPM(ipm)    ((uint8_t)(ipm + 0))  /* 外部表現を内部表現に */
+#define EXT_IPM(iipm)   ((PRI)(iipm))       /* 内部表現を外部表現に */
+#define INT_IPM(ipm)    ((uint8_t)(ipm))    /* 外部表現を内部表現に */
 #else /* TOPPERS_MACRO_ONLY */
-#define EXT_IPM(iipm)    (iipm - 0)           /* 内部表現を外部表現に */
-#define INT_IPM(ipm)    (ipm + 0)             /* 外部表現を内部表現に */
+#define EXT_IPM(iipm)   (iipm)              /* 内部表現を外部表現に */
+#define INT_IPM(ipm)    (ipm)               /* 外部表現を内部表現に */
 #endif /* TOPPERS_MACRO_ONLY */
 
 /*
@@ -230,25 +222,21 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 /*
  *  IPM（ハードウェアの割込み優先度マスク，内部表現）の現在値の読出し
  */
-// TODO : 割込み優先度の概念を実装する
 Inline uint8_t
 current_iipm(void)
 {
 	TPCB *p_tpcb = get_my_p_tpcb();
 	return(p_tpcb->iipm);
-//	return(gicc_current_priority());
 }
 
 /*
  *  IPM（ハードウェアの割込み優先度マスク，内部表現）の現在値の設定
  */
-// TODO : 割込み優先度の概念を実装する
 Inline void
 set_iipm(uint8_t iipm)
 {
 	TPCB *p_tpcb = get_my_p_tpcb();
 	p_tpcb->iipm = iipm;
-//	gicc_set_priority(iipm);
 }
 
 #endif /* TOPPERS_MACRO_ONLY */
@@ -362,10 +350,10 @@ x_enable_int(INTNO intno)
 /*
  * 割込み要求のクリア
  */
-// TODO : 割込み優先度の概念を実装する
 Inline void
 x_clear_int(INTNO intno)
 {
+    // MEMO : 共通の割込み要求クリアの仕組みはない
 //	gicd_clear_pending(INTNO_MASK(intno));
 }
 

@@ -162,6 +162,11 @@ chip_initialize(void)
 	 *  割込みマスクテーブルへのポインタの初期化
 	 */
 	p_tpcb->p_iipm_mask_tbl = p_iipm_mask_table[index];
+
+	/*
+	 *  割込みマスクテーブルへのポインタの初期化
+	 */
+	p_tpcb->iipm = 0;
 }
 
 /*

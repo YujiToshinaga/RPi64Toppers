@@ -203,8 +203,9 @@ ALABEL(intno_2_check)
     cmp   w10, #128
     b.eq  intno_unknown
     b     intno_exit
-ALABEL(intno_unknown)
-    mov   w10, #IRQNO_UNKNOWN
+ALABEL(intno_unknown)            /* 割込み要因不明 */
+    // MEMO : 割込み要因不明の割込みが頻発している
+    mov   w10, #IRQNO_UNKNOWN    
 ALABEL(intno_exit)
 
 //#ifdef TOPPERS_SAFEG_SECURE
@@ -250,7 +251,7 @@ ALABEL(cur_spx_irq_handler_0)
 
 ALABEL(cur_spx_irq_handler_1)
     /*
-     *  割込みの空振りは出口へ
+     *  割込み要因不明の場合は出口へ
      */
     cmp   w10, #IRQNO_UNKNOWN
     b.eq  target_ret_int_exit
@@ -268,30 +269,26 @@ ALABEL(cur_spx_irq_handler_1)
      */
     ldr   x0, [x8, #PCB_p_inh_iipm_tbl] /* 発生した割込みの優先度を取得 */
     ldr   w14, [x0, x10, lsl #2]
-    ldr   x1, [x8, #PCB_iipm]       /* 割込み発生前の割込み優先度を取得 */
-    ldr   w12, [x1]              
-    str   w14, [x1]                 /* 発生した割込みの優先度をiipmにセット */
-
-//    /* TODO : 割込み優先度の概念を実装する */
-//    add   w0, w14, #31            /* 割込み優先度マスク先頭アドレスを取得 */
-//    lsl   w0, w0, #2
-//    lsl   w0, w0, #2
-//    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
-//    add   x1, x1, x0
-//    ldr   w2, [x1, #0x4]          /* 優先度の低い割込みをdisableにする */
-//    ldr   x3, =DISABLE_IRQ_B
-//    str   w2, [x3]
-//    ldr   w2, [x1, #0x8]
-//    ldr   x3, =DISABLE_IRQ_1
-//    str   w2, [x3]
-//    ldr   w2, [x1, #0xc]
-//    ldr   x3, =DISABLE_IRQ_2
-//    str   w2, [x3]
+    ldr   w12, [x8, #PCB_iipm]      /* 割込み発生前の割込み優先度を取得 */
+    str   w14, [x8, #PCB_iipm]      /* 発生した割込みの優先度をiipmにセット */
+    add   w0, w14, #31              /* 発生した割込みのマスクアドレスを取得 */
+    lsl   w0, w0, #2
+    lsl   w0, w0, #2
+    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
+    add   x1, x1, x0
+    ldr   w3, [x1, #0x4]            /* 割込みをdisableにする */
+    ldr   x4, =DISABLE_IRQ_B
+    str   w3, [x4]
+    ldr   w3, [x1, #0x8]
+    ldr   x4, =DISABLE_IRQ_1
+    str   w3, [x4]
+    ldr   w3, [x1, #0xc]
+    ldr   x4, =DISABLE_IRQ_2
+    str   w3, [x4]
 
     /*
      *  NMIであるタイマ，Mailboxの割込みをここでクリアしておく．
      */
-    // TODO : 割込み優先度の概念が未実装なので，個別に割込みを禁止しておく
     cmp   w10, #IRQNO_CNTP
     b.eq  int_tim
     cmp   w10, #IRQNO_MBOX0
@@ -302,9 +299,6 @@ ALABEL(cur_spx_irq_handler_1)
     b.eq  int_mbox2
     cmp   w10, #IRQNO_MBOX3
     b.eq  int_mbox3
-    cmp   w10, #IRQNO_AUX
-    b.eq  int_aux
-    nop
     b     int_exit
 int_tim:
     msr   cntp_ctl_el0, xzr
@@ -327,11 +321,6 @@ int_mbox2:
 int_mbox3:
     ldr   x0, =CORE3_MBOX3_RC
     ldr   w1, =0xffffffff
-    str   w1, [x0]
-    b     int_exit
-int_aux:
-    ldr   x0, =DISABLE_IRQ_1
-    ldr   w1, =0x20000000
     str   w1, [x0]
     b     int_exit
 int_exit:
@@ -376,9 +365,6 @@ ALABEL(target_ret_int)
     ldp   x14, x10, [sp], #16   /* GICC_IAR から取得した内容を保存  */
                                 /* inhno を復帰  */
 
-//    ldr   x0, =(GICC_EOIR)    /* EOIレジスタへの書き込み */
-//    str   w14, [x0]
-
 #ifdef LOG_INH_LEAVE
     bl    log_inh_leave         /* log_inh_leaveを呼び出す */
 #endif /* LOG_INH_LEAVE */
@@ -400,40 +386,33 @@ ALABEL(target_ret_int)
     ldp   x11, x12, [sp], #16   /* 元のスタックポインタを取得 */
                                 /* 元の割込み優先度マスクを取得 */
 
-    ldr   x2, [x8, #PCB_iipm]   /* (モデル上の)割込み優先度マスクをセット */
-    str   w12, [x2]
+    str   w12, [x8, #PCB_iipm]  /* (モデル上の)割込み優先度マスクをセット */
 
-//    /* TODO : 割込み優先度の概念を実装する */
-//    add   w0, w12, #31          /* 割込み優先度マスク先頭アドレスを取得 */
-//    lsl   w0, w0, #2
-//    lsl   w0, w0, #2
-//    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
-//    add   x1, x1, x0
-//
-//    ldr   w2, [x1, #0x4]        /* 優先度の低い割込みをdisableにする */
-//    mvn   w2, w2
-//    ldr   x3, =ENABLE_IRQ_B
-//    str   w2, [x3]
-//
-//    ldr   w2, [x1, #0x8]
-//    mvn   w2, w2
-//    ldr   x3, =ENABLE_IRQ_1
-//    str   w2, [x3]
-//
-//    ldr   w2, [x1, #0xc]
-//    mvn   w2, w2
-//    ldr   x3, =ENABLE_IRQ_2
-//    str   w2, [x3]
-
-    // TODO : 割込み優先度の概念が未実装なので，個別に割込みを許可しておく
-    cmp   w10, #IRQNO_AUX
-    b.eq  int_aux_out
-    b     int_exit_out
-int_aux_out:
-    ldr   x0, =ENABLE_IRQ_1
-    ldr   w1, =0x20000000
-    str   w1, [x0]
-int_exit_out:
+    add   w0, w12, #31          /* 発生前の割込みのマスクアドレスを取得 */
+    lsl   w0, w0, #2
+    lsl   w0, w0, #2
+    ldr   x1, [x8, #PCB_p_iipm_mask_tbl]
+    add   x1, x1, x0
+    add   w2, w14, #31          /* 発生した割込みのマスクアドレスを取得 */
+    lsl   w2, w2, #2
+    lsl   w2, w2, #2
+    ldr   x3, [x8, #PCB_p_iipm_mask_tbl]
+    add   x3, x3, x2
+    ldr   w4, [x1, #0x4]        /* 割込みをenableにする */
+    ldr   w5, [x3, #0x4]
+    eor   w6, w4, w5
+    ldr   x7, =ENABLE_IRQ_B
+    str   w6, [x7]
+    ldr   w4, [x1, #0x8]
+    ldr   w5, [x3, #0x8]
+    eor   w6, w4, w5
+    ldr   x7, =ENABLE_IRQ_1
+    str   w6, [x7]
+    ldr   w4, [x1, #0xc]
+    ldr   w5, [x3, #0xc]
+    eor   w6, w4, w5
+    ldr   x7, =ENABLE_IRQ_2
+    str   w6, [x7]
 
 ALABEL(target_ret_int_exit)
     /*
