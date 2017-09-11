@@ -6,16 +6,12 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
 
  - TOPPERS/FMPカーネルを移植 (https://www.toppers.jp)
  - Raspberry Pi 3のARMv8 AArch64モードで動作
- - 4コアで動作
+ - 4コアでマルチコア動作
  - キャッシュ，MMUはON
  - 各コアのARM Generic Timerを使用
  - Raspberry PiのMini UARTを使用
  - 例外レベル3(EL3)でブートし，例外レベル1ノンセキュア(EL1NS)でカーネル動作
-
-制限事項
-
- - 割込み優先度の概念は未実装
-
+ - 割込み優先度のハードウェア機能がないため，ソフトウェアで疑似的に再現
 
 ## 必要な機材
 

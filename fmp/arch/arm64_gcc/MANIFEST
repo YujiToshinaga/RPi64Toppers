@@ -1,5 +1,4 @@
 PACKAGE fmp_arch_arm64_gcc
-VERSION 1.3.0
 
 MANIFEST
 README.txt
@@ -16,8 +15,6 @@ common/core_config.h
 common/core_config_tool.h
 common/core_def.csv
 common/core_insn.h
-common/core_ipi.cfg
-common/core_ipi.h
 common/core_kernel.h
 common/core_offset.tf
 common/core_pcb.h
@@ -32,7 +29,4 @@ common/core_timer.cfg
 common/core_timer.h
 common/core_unrename.h
 common/core_user.txt
-common/gic.c
-common/gic.h
-common/gic_support.S
 common/Makefile.core

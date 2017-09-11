@@ -30,7 +30,7 @@ CFG1_OUT_LDFLAGS := -nostdlib $(CFG1_OUT_LDFLAGS)
 #
 #  SafeGに関する定義
 #
-# TODO : SafeGに関する処理を実装する
+# MEMO : SafeGは未サポート
 
 #
 #  マクロの定義
