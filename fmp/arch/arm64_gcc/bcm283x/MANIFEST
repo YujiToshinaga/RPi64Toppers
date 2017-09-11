@@ -1,10 +1,14 @@
 PACKAGE fmp_arch_arm64_gcc
 
+bcm283x.h
+bcm283x.h
 chip.tf
 chip_asm.inc
+chip_cfg1_out.h
 chip_check.tf
 chip_config.c
 chip_config.h
+chip_config_tool.h
 chip_def.csv
 chip_ipi.cfg
 chip_ipi.h
@@ -13,8 +17,12 @@ chip_offset.tf
 chip_pcb.h
 chip_rename.def
 chip_rename.h
+chip_serial.c
+chip_serial.cfg
+chip_serial.h
 chip_sil.h
 chip_stddef.h
+chip_support.S
 chip_test.h
 chip_timer.cfg
 chip_timer.h
@@ -22,4 +30,3 @@ chip_unrename.h
 chip_user.txt
 Makefile.chip
 MANIFEST
-bcm283x.h
