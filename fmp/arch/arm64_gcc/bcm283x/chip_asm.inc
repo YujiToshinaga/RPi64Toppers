@@ -42,28 +42,28 @@
 #define TOPPERS_CHIP_ASM_INC
 
 .macro my_core_index re_reg sc_reg1
-	mrs   \re_reg, mpidr_el1
-	and	  \re_reg, \re_reg, #MPIDR_AFF0_MASK
+    mrs   \re_reg, mpidr_el1
+    and   \re_reg, \re_reg, #MPIDR_AFF0_MASK
 .endm
 
 #ifdef USE_THREAD_ID_PCB
 .macro my_pcb re_reg sc_reg1
-	mrs   \re_reg, tpidr_el1
+    mrs   \re_reg, tpidr_el1
 .endm
 #else  /* USE_THREAD_ID_PCB */
 .macro my_pcb re_reg sc_reg1
-	mrs   \re_reg, mpidr_el1
-	and	  \sc_reg1, \re_reg, #MPIDR_AFF0_MASK
-	ldr   \re_reg, =p_pcb_table
-	ldr   \re_reg, [\re_reg, \sc_reg1, lsl #3]
+    mrs   \re_reg, mpidr_el1
+    and   \sc_reg1, \re_reg, #MPIDR_AFF0_MASK
+    ldr   \re_reg, =p_pcb_table
+    ldr   \re_reg, [\re_reg, \sc_reg1, lsl #3]
 .endm
 #endif /* USE_THREAD_ID_PCB */
 
 .macro my_istkpt re_reg sc_reg1
-	mrs   \re_reg, mpidr_el1
-	and	  \sc_reg1, \re_reg, #MPIDR_AFF0_MASK
-	ldr   \re_reg, =_kernel_istkpt_table
-	ldr   \re_reg, [\re_reg, \sc_reg1, lsl #3]
+    mrs   \re_reg, mpidr_el1
+    and   \sc_reg1, \re_reg, #MPIDR_AFF0_MASK
+    ldr   \re_reg, =_kernel_istkpt_table
+    ldr   \re_reg, [\re_reg, \sc_reg1, lsl #3]
 .endm
 
 #include "arm64_gcc/common/core_asm.inc"

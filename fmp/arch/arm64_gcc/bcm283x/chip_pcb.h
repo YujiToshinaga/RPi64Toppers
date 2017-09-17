@@ -57,40 +57,40 @@ typedef struct processor_control_block PCB;
  *  プロセッサコントロールブロック
  */
 typedef struct target_processor_control_block {
-	/*
-	 *  割込み・例外のネスト回数
-	 */
-	uint32_t excpt_nest_count;
+    /*
+     *  割込み・例外のネスト回数
+     */
+    uint32_t excpt_nest_count;
 
-	/*
-	 *  非タスクコンテキスト用のスタックの初期値
-	 */
-	STK_T* istkpt;
+    /*
+     *  非タスクコンテキスト用のスタックの初期値
+     */
+    STK_T* istkpt;
 
-	/*
-	 *  CPU例外ハンドラテーブルへのポインタ
-	 */
-	const FP* p_exch_tbl;
+    /*
+     *  CPU例外ハンドラテーブルへのポインタ
+     */
+    const FP* p_exch_tbl;
 
-	/*
-	 *  割込みハンドラテーブルへのポインタ
-	 */
-	const FP* p_inh_tbl;
+    /*
+     *  割込みハンドラテーブルへのポインタ
+     */
+    const FP* p_inh_tbl;
 
-	/*
-	 *  割込み優先度テーブルへのポインタ
-	 */
-	const PRI* p_inh_iipm_tbl;
+    /*
+     *  割込み優先度テーブルへのポインタ
+     */
+    const PRI* p_inh_iipm_tbl;
 
-	/*
-	 *  割込みハンドラテーブルへのポインタ
-	 */
-	const uint32_t* p_iipm_mask_tbl;
+    /*
+     *  割込みハンドラテーブルへのポインタ
+     */
+    const uint32_t* p_iipm_mask_tbl;
 
-	/*
-	 * 割込み優先度
-	 */
-	uint8_t iipm;
+    /*
+     * 割込み優先度
+     */
+    uint8_t iipm;
 } TPCB;
 
 /*
@@ -105,13 +105,13 @@ typedef uint32_t LOCK;
 Inline PCB*
 get_my_p_pcb(void)
 {
-	PCB* my_p_pcb;
-	uint64_t tmp;
+    PCB* my_p_pcb;
+    uint64_t tmp;
 
-	TPIDR_EL1_READ(tmp);
-	my_p_pcb = (PCB*)tmp;
+    TPIDR_EL1_READ(tmp);
+    my_p_pcb = (PCB*)tmp;
 
-	return my_p_pcb;
+    return my_p_pcb;
 }
 #endif /* USE_THREAD_ID_PCB */
 

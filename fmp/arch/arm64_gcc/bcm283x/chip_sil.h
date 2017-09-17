@@ -64,13 +64,13 @@
 Inline void
 sil_get_pid(ID *p_prcid)
 {
-	uint64_t mpidr;
-	uint32_t index;
+    uint64_t mpidr;
+    uint32_t index;
 
-	Asm("mrs %0, mpidr_el1":"=r"(mpidr));
+    Asm("mrs %0, mpidr_el1":"=r"(mpidr));
 
-	index = (uint32_t)mpidr & 0x000000ff;
-	*p_prcid = (ID)index + 1;
+    index = (uint32_t)mpidr & 0x000000ff;
+    *p_prcid = (ID)index + 1;
 }
 
 /*
@@ -122,54 +122,54 @@ extern uint32_t TOPPERS_spn_var;
 Inline uint32_t
 TOPPERS_sil_loc_spn(void)
 {
-	uint32_t irq_fiq_mask;
-	uint32_t locked;
-	uint32_t pre_daif;
-	uint32_t dis_daif;
-	ID       prcid;
+    uint32_t irq_fiq_mask;
+    uint32_t locked;
+    uint32_t pre_daif;
+    uint32_t dis_daif;
+    ID       prcid;
 
-	sil_get_pid(&prcid);
+    sil_get_pid(&prcid);
 
-	/* 呼び出し時のcpsrのbit0～7の状態 */
+    /* 呼び出し時のcpsrのbit0～7の状態 */
     Asm("mrs  %0, daif" : "=r"(pre_daif));
 
-	/* 全割込みロック状態へ */
-	irq_fiq_mask = TOPPERS_disint();
+    /* 全割込みロック状態へ */
+    irq_fiq_mask = TOPPERS_disint();
 
-	/* 全割込みロック状態移行後のcpsrのbit0～7の状態 */
+    /* 全割込みロック状態移行後のcpsrのbit0～7の状態 */
     Asm("mrs  %0, daif" : "=r"(dis_daif));
 
-	while (true) {
-		/*
-		 * スピンロックの取得
-		 * プロセッサIDを書き込む
-		 */
-		Asm("   mov   x2, %4    \n"
-			"\t ldxr  w1, [%1]     \n"
-			"\t cmp   w1, #0x00    \n"
-			"\t b.eq  1f           \n"
-			"\t mov   x3, %2       \n" /* 呼び出し時の状態へ（割込み許可） */
-			"\t msr   daif, x3     \n"
-			"\t wfe                \n"
-			"\t mov   x3, %3       \n" /* 全割込みロック状態へ */
-			"\t msr   daif, x3     \n"
-			"\t b     2f           \n"
-			"\t 1:                 \n"
-			"\t stxr  w1, w2, [%1] \n"
-			"\t 2:                 \n"
-			"\t mov   %0, x1       \n"
-			:"=r"(locked)
-			:"r"(&TOPPERS_spn_var), "r"(pre_daif), "r"(dis_daif), "r"(prcid)
-			:"x1", "x2", "x3", "cc");
+    while (true) {
+        /*
+         * スピンロックの取得
+         * プロセッサIDを書き込む
+         */
+        Asm("   mov   x2, %4    \n"
+            "\t ldxr  w1, [%1]     \n"
+            "\t cmp   w1, #0x00    \n"
+            "\t b.eq  1f           \n"
+            "\t mov   x3, %2       \n" /* 呼び出し時の状態へ（割込み許可） */
+            "\t msr   daif, x3     \n"
+            "\t wfe                \n"
+            "\t mov   x3, %3       \n" /* 全割込みロック状態へ */
+            "\t msr   daif, x3     \n"
+            "\t b     2f           \n"
+            "\t 1:                 \n"
+            "\t stxr  w1, w2, [%1] \n"
+            "\t 2:                 \n"
+            "\t mov   %0, x1       \n"
+            :"=r"(locked)
+            :"r"(&TOPPERS_spn_var), "r"(pre_daif), "r"(dis_daif), "r"(prcid)
+            :"x1", "x2", "x3", "cc");
 
-		if (locked == 0) {
-			/* スピンロックが取得成功 */
-			/* Data meory barrier */
-			Asm("dmb sy");
-			Asm("":::"memory");
-			return irq_fiq_mask;
-		}
-	}
+        if (locked == 0) {
+            /* スピンロックが取得成功 */
+            /* Data meory barrier */
+            Asm("dmb sy");
+            Asm("":::"memory");
+            return irq_fiq_mask;
+        }
+    }
 }
 
 /*
@@ -178,22 +178,22 @@ TOPPERS_sil_loc_spn(void)
 Inline void
 TOPPERS_sil_unl_spn(uint32_t irq_fiq_mask)
 {
-	/* メモリの内容が書き換わる可能性がある */
-	Asm("":::"memory");
+    /* メモリの内容が書き換わる可能性がある */
+    Asm("":::"memory");
 
-	/* Data meory barrier */
-	Asm("dmb sy");
+    /* Data meory barrier */
+    Asm("dmb sy");
 
-	TOPPERS_spn_var = 0U;
+    TOPPERS_spn_var = 0U;
 
-	/* Data Sync Barrier */
-	Asm("dsb sy");
+    /* Data Sync Barrier */
+    Asm("dsb sy");
 
-	/* スピンロック待ちのタスクへイベントを送る */
-	Asm("sev");
+    /* スピンロック待ちのタスクへイベントを送る */
+    Asm("sev");
 
-	/* スピンロックの取得前の状態へ */
-	TOPPERS_set_fiq_irq(irq_fiq_mask);
+    /* スピンロックの取得前の状態へ */
+    TOPPERS_set_fiq_irq(irq_fiq_mask);
 }
 
 /*
@@ -209,15 +209,15 @@ TOPPERS_sil_unl_spn(uint32_t irq_fiq_mask)
 Inline void
 TOPPERS_sil_force_unl_spn(void)
 {
-	ID prcid;
+    ID prcid;
 
-	sil_get_pid(&prcid);
+    sil_get_pid(&prcid);
 
-	if (TOPPERS_spn_var == prcid) {
-		TOPPERS_spn_var = 0U;
-		/* スピンロック待ちのタスクへイベントを送る */
-		Asm("sev");
-	}
+    if (TOPPERS_spn_var == prcid) {
+        TOPPERS_spn_var = 0U;
+        /* スピンロック待ちのタスクへイベントを送る */
+        Asm("sev");
+    }
 }
 
 #endif /* TOPPERS_MACRO_ONLY */

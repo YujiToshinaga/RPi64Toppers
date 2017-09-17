@@ -61,24 +61,24 @@ extern void start(void);
 void
 target_mon_initialize(void)
 {
-	uint32_t freqency;
-	uint64_t tmp;
+    uint32_t freqency;
+    uint64_t tmp;
 
-	/*
-	 *  CPUECTLR_EL1のアクセス許可
-	 */
+    /*
+     *  CPUECTLR_EL1のアクセス許可
+     */
     ACTLR_EL3_READ(tmp);
     tmp |= ACTLR_CPUEC_AC_BIT;
     ACTLR_EL3_WRITE(tmp);
 
-	/*
-	 *  Generic Timerの初期化
-	 */
-//	freqency = sil_rew_mem((void *)(CNTFID0));
-	freqency = 1000000;
-	CNTFRQ_EL0_WRITE(freqency);
+    /*
+     *  Generic Timerの初期化
+     */
+//    freqency = sil_rew_mem((uint32_t *)(CNTFID0));
+    freqency = 1000000;
+    CNTFRQ_EL0_WRITE(freqency);
 
-	inst_sync_barrier();
+    inst_sync_barrier();
 }
 #endif /* INIT_MONITOR */
 
@@ -91,23 +91,23 @@ target_hyp_initialize(void)
 {
     uint64_t tmp;
 
-	/*
-	 *  CPUECTLR_EL1のアクセス許可
-	 */
+    /*
+     *  CPUECTLR_EL1のアクセス許可
+     */
     ACTLR_EL2_READ(tmp);
     tmp |= ACTLR_CPUEC_AC_BIT;
     ACTLR_EL2_WRITE(tmp);
 
-	/*
-	 *  Generic Timerの初期化
-	 */
-	/* Physical Counter, Physical TimerをEL1NSとEL0NSからアクセス可能に */
-	CNTHCTL_EL2_WRITE(CNTHCTL_EL1PCEN_BIT | CNTHCTL_EL1PCTEN_BIT);
+    /*
+     *  Generic Timerの初期化
+     */
+    /* Physical Counter, Physical TimerをEL1NSとEL0NSからアクセス可能に */
+    CNTHCTL_EL2_WRITE(CNTHCTL_EL1PCEN_BIT | CNTHCTL_EL1PCTEN_BIT);
 
-	/* Virtual Counterのオフセットを0に */
-	CNTVOFF_EL2_WRITE(0);
+    /* Virtual Counterのオフセットを0に */
+    CNTVOFF_EL2_WRITE(0);
 
-	inst_sync_barrier();
+    inst_sync_barrier();
 }
 #endif /* INIT_HYPERVISOR */
 
@@ -122,24 +122,24 @@ target_mprc_initialize(void)
     /*
      *  GPIOをUARTに切り替え
      */
-	tmp = sil_rew_mem((void *)GPIO_GPFSEL1);
-	tmp &= ~(7 << 12);	// GPIO14 ALT5
-	tmp |= 2 << 12;
-	tmp &= ~(7 << 15);	// GPIO15 ALT5
-	tmp |= 2 << 15;
-	sil_wrw_mem((void *)GPIO_GPFSEL1, tmp);
+    tmp = sil_rew_mem((uint32_t *)GPIO_GPFSEL1);
+    tmp &= ~(7 << 12);      // GPIO14 ALT5
+    tmp |= 2 << 12;
+    tmp &= ~(7 << 15);      // GPIO15 ALT5
+    tmp |= 2 << 15;
+    sil_wrw_mem((uint32_t *)GPIO_GPFSEL1, tmp);
 
-	sil_wrw_mem((void *)GPIO_GPPUD, 0);
-	for (tmp = 0; tmp < 150; tmp++) {
+    sil_wrw_mem((uint32_t *)GPIO_GPPUD, 0);
+    for (tmp = 0; tmp < 150; tmp++) {
         asm volatile("nop");
     }
-	sil_wrw_mem((void *)GPIO_GPPUDCLK0, (1 << 14) | (1 << 15));
-	for (tmp = 0; tmp < 150; tmp++) {
+    sil_wrw_mem((uint32_t *)GPIO_GPPUDCLK0, (1 << 14) | (1 << 15));
+    for (tmp = 0; tmp < 150; tmp++) {
         asm volatile("nop");
     }
-	sil_wrw_mem((void *)GPIO_GPPUDCLK0, 0);
+    sil_wrw_mem((uint32_t *)GPIO_GPPUDCLK0, 0);
 
-	chip_mprc_initialize();
+    chip_mprc_initialize();
 
 //#ifdef TOPPERS_SAFEG_SECURE
 //#endif /* defined(TOPPERS_SAFEG_SECURE) */
@@ -152,35 +152,35 @@ target_mprc_initialize(void)
 void
 target_mmu_init(void)
 {
-	mmap_t mm;
+    mmap_t mm;
 
-	/*
-	 *  メモリマップの設定
-	 *  全領域は物理アドレス = 仮想アドレス
-	 */
+    /*
+     *  メモリマップの設定
+     *  全領域は物理アドレス = 仮想アドレス
+     */
 //#if defined(TOPPERS_SAFEG_SECURE)
 //#elif defined(TOPPERS_SAFEG_NONSECURE)
 //#else /* defined(TOPPERS_SAFEG_SECURE) */
-	mm.pa   = SDRAM_ADDR;
-	mm.va   = mm.pa;
-	mm.size = SDRAM_SIZE;
-	mm.attr	= MEM_ATTR_NML_C;
-	mm.ns	= MEM_NS_NONSECURE;
-	mmu_mmap_add(&mm);
+    mm.pa   = SDRAM_ADDR;
+    mm.va   = mm.pa;
+    mm.size = SDRAM_SIZE;
+    mm.attr = MEM_ATTR_NML_C;
+    mm.ns   = MEM_NS_NONSECURE;
+    mmu_mmap_add(&mm);
 
-	mm.pa   = IO0_ADDR;
-	mm.va   = mm.pa;
-	mm.size = IO0_SIZE;
-	mm.attr	= MEM_ATTR_DEV;
-	mm.ns	= MEM_NS_NONSECURE;
-	mmu_mmap_add(&mm);
+    mm.pa   = IO0_ADDR;
+    mm.va   = mm.pa;
+    mm.size = IO0_SIZE;
+    mm.attr = MEM_ATTR_DEV;
+    mm.ns   = MEM_NS_NONSECURE;
+    mmu_mmap_add(&mm);
 
-	mm.pa   = IO1_ADDR;
-	mm.va   = mm.pa;
-	mm.size = IO1_SIZE;
-	mm.attr	= MEM_ATTR_DEV;
-	mm.ns	= MEM_NS_NONSECURE;
-	mmu_mmap_add(&mm);
+    mm.pa   = IO1_ADDR;
+    mm.va   = mm.pa;
+    mm.size = IO1_SIZE;
+    mm.attr = MEM_ATTR_DEV;
+    mm.ns   = MEM_NS_NONSECURE;
+    mmu_mmap_add(&mm);
 //#endif /* defined(TOPPERS_SAFEG_SECURE) */
 
 //#ifdef TOPPERS_SAFEG_COM
@@ -193,21 +193,21 @@ target_mmu_init(void)
 void
 target_initialize(void)
 {
-	/*
-	 *  バナー表示，低レベル出力用にUARTを初期化
-	 */
+    /*
+     *  バナー表示，低レベル出力用にUARTを初期化
+     */
 #ifdef G_SYSLOG
-	if (x_sense_mprc()) {
-		mu_reset(1);
-	}
+    if (x_sense_mprc()) {
+        mu_reset(1);
+    }
 #else /* G_SYSLOG */
-	mu_reset(x_prc_index() + 1);
+    mu_reset(x_prc_index() + 1);
 #endif /* G_SYSLOG */
 
-	/*
-	 *  チップ依存の初期化
-	 */
-	chip_initialize();
+    /*
+     *  チップ依存の初期化
+     */
+    chip_initialize();
 }
 
 /*
@@ -216,12 +216,12 @@ target_initialize(void)
 void
 target_exit(void)
 {
-	/*
-	 *  チップ依存の終了処理
-	 */
-	chip_exit();
+    /*
+     *  チップ依存の終了処理
+     */
+    chip_exit();
 
-	while(1);
+    while(1);
 }
 
 //#ifdef TOPPERS_SAFEG_SECURE
@@ -236,8 +236,8 @@ target_exit(void)
 void
 target_fput_log(char c)
 {
-	if (c == '\n') {
-		mu_pol_putc(1, '\r');
-	}
-	mu_pol_putc(1, c);
+    if (c == '\n') {
+        mu_pol_putc(1, '\r');
+    }
+    mu_pol_putc(1, c);
 }

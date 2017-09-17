@@ -45,104 +45,104 @@
 #ifndef TOPPERS_ARM64_TOOL_H
 #define TOPPERS_ARM64_TOOL_H
 
-#define INST_SYNC_BARRIER()			Asm("isb":::"memory")
-#define DATA_MEMORY_BARRIER()		Asm("dmb sy":::"memory")
-#define DATA_SYNC_BARRIER()			Asm("dsb sy":::"memory")
+#define INST_SYNC_BARRIER()         Asm("isb":::"memory")
+#define DATA_MEMORY_BARRIER()       Asm("dmb sy":::"memory")
+#define DATA_SYNC_BARRIER()         Asm("dsb sy":::"memory")
 
-#define IC_IALLU()					Asm("ic iallu");
-#define IC_IALLUIS()				Asm("ic ialluis");
-#define DC_CISW(x)					Asm("dc cisw, %0"::"r"(x));
-#define DC_CSW(x)					Asm("dc isw, %0"::"r"(x));
-#define DC_ISW(x)					Asm("dc isw, %0"::"r"(x));
+#define IC_IALLU()                  Asm("ic iallu");
+#define IC_IALLUIS()                Asm("ic ialluis");
+#define DC_CISW(x)                  Asm("dc cisw, %0"::"r"(x));
+#define DC_CSW(x)                   Asm("dc isw, %0"::"r"(x));
+#define DC_ISW(x)                   Asm("dc isw, %0"::"r"(x));
 
-#define TLBI_VMALLE1(x)				Asm("tlbi vmalle1");
+#define TLBI_VMALLE1(x)             Asm("tlbi vmalle1");
 
-#define CCSIDR_EL1_WRITE(x)			Asm("msr ccsidr_el1, %0"::"r"(x));
-#define CCSIDR_EL1_READ(x)			Asm("mrs %0, ccsidr_el1":"=r"(x));
-#define CLIDR_EL1_WRITE(x)			Asm("msr clidr_el1, %0"::"r"(x));
-#define CLIDR_EL1_READ(x)			Asm("mrs %0, clidr_el1":"=r"(x));
-#define CSSELR_EL1_WRITE(x)			Asm("msr csselr_el1, %0"::"r"(x));
-#define CSSELR_EL1_READ(x)			Asm("mrs %0, csselr_el1":"=r"(x));
-#define CTR_EL0_WRITE(x)			Asm("msr ctr_el0, %0"::"r"(x));
-#define CTR_EL0_READ(x)				Asm("mrs %0, ctr_el0":"=r"(x));
-#define ID_AA64MMFR0_EL1_WRITE(x)	Asm("msr id_aa64mmfr0_el1, %0"::"r"(x));
-#define ID_AA64MMFR0_EL1_READ(x)	Asm("mrs %0, id_aa64mmfr0_el1":"=r"(x));
-#define MPIDR_EL1_WRITE(x)			Asm("msr mpidr_el1, %0"::"r"(x));
-#define MPIDR_EL1_READ(x)			Asm("mrs %0, mpidr_el1":"=r"(x));
-#define TPIDR_EL1_WRITE(x)			Asm("msr tpidr_el1, %0"::"r"(x));
-#define TPIDR_EL1_READ(x)			Asm("mrs %0, tpidr_el1":"=r"(x));
+#define CCSIDR_EL1_WRITE(x)         Asm("msr ccsidr_el1, %0"::"r"(x));
+#define CCSIDR_EL1_READ(x)          Asm("mrs %0, ccsidr_el1":"=r"(x));
+#define CLIDR_EL1_WRITE(x)          Asm("msr clidr_el1, %0"::"r"(x));
+#define CLIDR_EL1_READ(x)           Asm("mrs %0, clidr_el1":"=r"(x));
+#define CSSELR_EL1_WRITE(x)         Asm("msr csselr_el1, %0"::"r"(x));
+#define CSSELR_EL1_READ(x)          Asm("mrs %0, csselr_el1":"=r"(x));
+#define CTR_EL0_WRITE(x)            Asm("msr ctr_el0, %0"::"r"(x));
+#define CTR_EL0_READ(x)             Asm("mrs %0, ctr_el0":"=r"(x));
+#define ID_AA64MMFR0_EL1_WRITE(x)   Asm("msr id_aa64mmfr0_el1, %0"::"r"(x));
+#define ID_AA64MMFR0_EL1_READ(x)    Asm("mrs %0, id_aa64mmfr0_el1":"=r"(x));
+#define MPIDR_EL1_WRITE(x)          Asm("msr mpidr_el1, %0"::"r"(x));
+#define MPIDR_EL1_READ(x)           Asm("mrs %0, mpidr_el1":"=r"(x));
+#define TPIDR_EL1_WRITE(x)          Asm("msr tpidr_el1, %0"::"r"(x));
+#define TPIDR_EL1_READ(x)           Asm("mrs %0, tpidr_el1":"=r"(x));
 
-#define TCR_EL1_WRITE(x)			Asm("msr tcr_el1, %0"::"r"(x));
-#define TCR_EL1_READ(x)				Asm("mrs %0, tcr_el1":"=r"(x));
-#define TTBR0_EL1_WRITE(x)			Asm("msr ttbr0_el1, %0"::"r"(x));
-#define TTBR0_EL1_READ(x)			Asm("mrs %0, ttbr0_el1":"=r"(x));
-#define MAIR_EL1_WRITE(x)			Asm("msr mair_el1, %0"::"r"(x));
-#define MAIR_EL1_READ(x)			Asm("mrs %0, mair_el1":"=r"(x));
+#define TCR_EL1_WRITE(x)            Asm("msr tcr_el1, %0"::"r"(x));
+#define TCR_EL1_READ(x)             Asm("mrs %0, tcr_el1":"=r"(x));
+#define TTBR0_EL1_WRITE(x)          Asm("msr ttbr0_el1, %0"::"r"(x));
+#define TTBR0_EL1_READ(x)           Asm("mrs %0, ttbr0_el1":"=r"(x));
+#define MAIR_EL1_WRITE(x)           Asm("msr mair_el1, %0"::"r"(x));
+#define MAIR_EL1_READ(x)            Asm("mrs %0, mair_el1":"=r"(x));
 
-#define SCTLR_EL3_WRITE(x)			Asm("msr sctlr_el3, %0"::"r"(x));
-#define SCTLR_EL3_READ(x)			Asm("mrs %0, sctlr_el3":"=r"(x));
-#define SCTLR_EL2_WRITE(x)			Asm("msr sctlr_el2, %0"::"r"(x));
-#define SCTLR_EL2_READ(x)			Asm("mrs %0, sctlr_el2":"=r"(x));
-#define SCTLR_EL1_WRITE(x)			Asm("msr sctlr_el1, %0"::"r"(x));
-#define SCTLR_EL1_READ(x)			Asm("mrs %0, sctlr_el1":"=r"(x));
+#define SCTLR_EL3_WRITE(x)          Asm("msr sctlr_el3, %0"::"r"(x));
+#define SCTLR_EL3_READ(x)           Asm("mrs %0, sctlr_el3":"=r"(x));
+#define SCTLR_EL2_WRITE(x)          Asm("msr sctlr_el2, %0"::"r"(x));
+#define SCTLR_EL2_READ(x)           Asm("mrs %0, sctlr_el2":"=r"(x));
+#define SCTLR_EL1_WRITE(x)          Asm("msr sctlr_el1, %0"::"r"(x));
+#define SCTLR_EL1_READ(x)           Asm("mrs %0, sctlr_el1":"=r"(x));
 
-#define ACTLR_EL3_WRITE(x)		    Asm("msr actlr_el3, %0"::"r"(x));
-#define ACTLR_EL3_READ(x)		    Asm("mrs %0, actlr_el3":"=r"(x));
-#define ACTLR_EL2_WRITE(x)		    Asm("msr actlr_el2, %0"::"r"(x));
-#define ACTLR_EL2_READ(x)		    Asm("mrs %0, actlr_el2":"=r"(x));
+#define ACTLR_EL3_WRITE(x)          Asm("msr actlr_el3, %0"::"r"(x));
+#define ACTLR_EL3_READ(x)           Asm("mrs %0, actlr_el3":"=r"(x));
+#define ACTLR_EL2_WRITE(x)          Asm("msr actlr_el2, %0"::"r"(x));
+#define ACTLR_EL2_READ(x)           Asm("mrs %0, actlr_el2":"=r"(x));
 
-#define VBAR_EL3_WRITE(x)			Asm("msr vbar_el3, %0"::"r"(x));
-#define VBAR_EL3_READ(x)			Asm("mrs %0, vbar_el3":"=r"(x));
-#define VBAR_EL2_WRITE(x)			Asm("msr vbar_el2, %0"::"r"(x));
-#define VBAR_EL2_READ(x)			Asm("mrs %0, vbar_el2":"=r"(x));
-#define VBAR_EL1_WRITE(x)			Asm("msr vbar_el1, %0"::"r"(x));
-#define VBAR_EL1_READ(x)			Asm("mrs %0, vbar_el1":"=r"(x));
+#define VBAR_EL3_WRITE(x)           Asm("msr vbar_el3, %0"::"r"(x));
+#define VBAR_EL3_READ(x)            Asm("mrs %0, vbar_el3":"=r"(x));
+#define VBAR_EL2_WRITE(x)           Asm("msr vbar_el2, %0"::"r"(x));
+#define VBAR_EL2_READ(x)            Asm("mrs %0, vbar_el2":"=r"(x));
+#define VBAR_EL1_WRITE(x)           Asm("msr vbar_el1, %0"::"r"(x));
+#define VBAR_EL1_READ(x)            Asm("mrs %0, vbar_el1":"=r"(x));
 
-#define HCR_EL2_WRITE(x)			Asm("msr hcr_el2, %0"::"r"(x));
-#define HCR_EL2_READ(x)				Asm("mrs %0, hcr_el2":"=r"(x));
+#define HCR_EL2_WRITE(x)            Asm("msr hcr_el2, %0"::"r"(x));
+#define HCR_EL2_READ(x)             Asm("mrs %0, hcr_el2":"=r"(x));
 
-#define SCR_EL3_WRITE(x)			Asm("msr scr_el3, %0"::"r"(x));
-#define SCR_EL3_READ(x)				Asm("mrs %0, scr_el3":"=r"(x));
+#define SCR_EL3_WRITE(x)            Asm("msr scr_el3, %0"::"r"(x));
+#define SCR_EL3_READ(x)             Asm("mrs %0, scr_el3":"=r"(x));
 
-#define CPUECTLR_EL1_WRITE(x)		Asm("msr s3_1_c15_c2_1, %0"::"r"(x));
-#define CPUECTLR_EL1_READ(x)		Asm("mrs %0, s3_1_c15_c2_1":"=r"(x));
+#define CPUECTLR_EL1_WRITE(x)       Asm("msr s3_1_c15_c2_1, %0"::"r"(x));
+#define CPUECTLR_EL1_READ(x)        Asm("mrs %0, s3_1_c15_c2_1":"=r"(x));
 
-#define CNTFRQ_EL0_WRITE(x)			Asm("msr cntfrq_el0, %0"::"r"(x));
-#define CNTFRQ_EL0_READ(x)			Asm("mrs %0, cntfrq_el0":"=r"(x));
-#define CNTKCTL_EL1_WRITE(x)		Asm("msr cntkctl_el1, %0"::"r"(x));
-#define CNTKCTL_EL1_READ(x)			Asm("mrs %0, cntkctl_el1":"=r"(x));
-#define CNTHCTL_EL2_WRITE(x)		Asm("msr cnthctl_el2, %0"::"r"(x));
-#define CNTHCTL_EL2_READ(x)			Asm("mrs %0, cnthctl_el2":"=r"(x));
-#define CNTPCT_EL0_WRITE(x)			Asm("msr cntpct_el0, %0"::"r"(x));
-#define CNTPCT_EL0_READ(x)			Asm("mrs %0, cntpct_el0":"=r"(x));
-#define CNTVOFF_EL2_WRITE(x)		Asm("msr cntvoff_el2, %0"::"r"(x));
-#define CNTVOFF_EL2_READ(x)			Asm("mrs %0, cntvoff_el2":"=r"(x));
-#define CNTVCT_EL0_WRITE(x)			Asm("msr cntvct_el0, %0"::"r"(x));
-#define CNTVCT_EL0_READ(x)			Asm("mrs %0, cntvct_el0":"=r"(x));
-#define CNTP_CTL_EL0_WRITE(x)		Asm("msr cntp_ctl_el0, %0"::"r"(x));
-#define CNTP_CTL_EL0_READ(x)		Asm("mrs %0, cntp_ctl_el0":"=r"(x));
-#define CNTP_TVAL_EL0_WRITE(x)		Asm("msr cntp_tval_el0, %0"::"r"(x));
-#define CNTP_TVAL_EL0_READ(x)		Asm("mrs %0, cntp_tval_el0":"=r"(x));
-#define CNTP_CVAL_EL0_WRITE(x)		Asm("msr cntp_cval_el0, %0"::"r"(x));
-#define CNTP_CVAL_EL0_READ(x)		Asm("mrs %0, cntp_cval_el0":"=r"(x));
-#define CNTPS_CTL_EL1_WRITE(x)		Asm("msr cntps_ctl_el1, %0"::"r"(x));
-#define CNTPS_CTL_EL1_READ(x)		Asm("mrs %0, cntps_ctl_el1":"=r"(x));
-#define CNTPS_TVAL_EL1_WRITE(x)		Asm("msr cntps_tval_el1, %0"::"r"(x));
-#define CNTPS_TVAL_EL1_READ(x)		Asm("mrs %0, cntps_tval_el1":"=r"(x));
-#define CNTPS_CVAL_EL1_WRITE(x)		Asm("msr cntps_cval_el1, %0"::"r"(x));
-#define CNTPS_CVAL_EL1_READ(x)		Asm("mrs %0, cntps_cval_el1":"=r"(x));
-#define CNTV_CTL_EL0_WRITE(x)		Asm("msr cntv_ctl_el0, %0"::"r"(x));
-#define CNTV_CTL_EL0_READ(x)		Asm("mrs %0, cntv_ctl_el0":"=r"(x));
-#define CNTV_TVAL_EL0_WRITE(x)		Asm("msr cntv_tval_el0, %0"::"r"(x));
-#define CNTV_TVAL_EL0_READ(x)		Asm("mrs %0, cntv_tval_el0":"=r"(x));
-#define CNTV_CVAL_EL0_WRITE(x)		Asm("msr cntv_cval_el0, %0"::"r"(x));
-#define CNTV_CVAL_EL0_READ(x)		Asm("mrs %0, cntv_cval_el0":"=r"(x));
+#define CNTFRQ_EL0_WRITE(x)         Asm("msr cntfrq_el0, %0"::"r"(x));
+#define CNTFRQ_EL0_READ(x)          Asm("mrs %0, cntfrq_el0":"=r"(x));
+#define CNTKCTL_EL1_WRITE(x)        Asm("msr cntkctl_el1, %0"::"r"(x));
+#define CNTKCTL_EL1_READ(x)         Asm("mrs %0, cntkctl_el1":"=r"(x));
+#define CNTHCTL_EL2_WRITE(x)        Asm("msr cnthctl_el2, %0"::"r"(x));
+#define CNTHCTL_EL2_READ(x)         Asm("mrs %0, cnthctl_el2":"=r"(x));
+#define CNTPCT_EL0_WRITE(x)         Asm("msr cntpct_el0, %0"::"r"(x));
+#define CNTPCT_EL0_READ(x)          Asm("mrs %0, cntpct_el0":"=r"(x));
+#define CNTVOFF_EL2_WRITE(x)        Asm("msr cntvoff_el2, %0"::"r"(x));
+#define CNTVOFF_EL2_READ(x)         Asm("mrs %0, cntvoff_el2":"=r"(x));
+#define CNTVCT_EL0_WRITE(x)         Asm("msr cntvct_el0, %0"::"r"(x));
+#define CNTVCT_EL0_READ(x)          Asm("mrs %0, cntvct_el0":"=r"(x));
+#define CNTP_CTL_EL0_WRITE(x)       Asm("msr cntp_ctl_el0, %0"::"r"(x));
+#define CNTP_CTL_EL0_READ(x)        Asm("mrs %0, cntp_ctl_el0":"=r"(x));
+#define CNTP_TVAL_EL0_WRITE(x)      Asm("msr cntp_tval_el0, %0"::"r"(x));
+#define CNTP_TVAL_EL0_READ(x)       Asm("mrs %0, cntp_tval_el0":"=r"(x));
+#define CNTP_CVAL_EL0_WRITE(x)      Asm("msr cntp_cval_el0, %0"::"r"(x));
+#define CNTP_CVAL_EL0_READ(x)       Asm("mrs %0, cntp_cval_el0":"=r"(x));
+#define CNTPS_CTL_EL1_WRITE(x)      Asm("msr cntps_ctl_el1, %0"::"r"(x));
+#define CNTPS_CTL_EL1_READ(x)       Asm("mrs %0, cntps_ctl_el1":"=r"(x));
+#define CNTPS_TVAL_EL1_WRITE(x)     Asm("msr cntps_tval_el1, %0"::"r"(x));
+#define CNTPS_TVAL_EL1_READ(x)      Asm("mrs %0, cntps_tval_el1":"=r"(x));
+#define CNTPS_CVAL_EL1_WRITE(x)     Asm("msr cntps_cval_el1, %0"::"r"(x));
+#define CNTPS_CVAL_EL1_READ(x)      Asm("mrs %0, cntps_cval_el1":"=r"(x));
+#define CNTV_CTL_EL0_WRITE(x)       Asm("msr cntv_ctl_el0, %0"::"r"(x));
+#define CNTV_CTL_EL0_READ(x)        Asm("mrs %0, cntv_ctl_el0":"=r"(x));
+#define CNTV_TVAL_EL0_WRITE(x)      Asm("msr cntv_tval_el0, %0"::"r"(x));
+#define CNTV_TVAL_EL0_READ(x)       Asm("mrs %0, cntv_tval_el0":"=r"(x));
+#define CNTV_CVAL_EL0_WRITE(x)      Asm("msr cntv_cval_el0, %0"::"r"(x));
+#define CNTV_CVAL_EL0_READ(x)       Asm("mrs %0, cntv_cval_el0":"=r"(x));
 
-#define PMCCNTR_EL0_WRITE(x)		Asm("msr pmccntr_el0, %0"::"r"(x));
-#define PMCCNTR_EL0_READ(x)			Asm("mrs %0, pmccntr_el0":"=r"(x));
-#define PMCR_EL0_WRITE(x)			Asm("msr pmcr_el0, %0"::"r"(x));
-#define PMCR_EL0_READ(x)			Asm("mrs %0, pmcr_el0":"=r"(x));
-#define PMCNTENSET_EL0_WRITE(x)		Asm("msr pmcntenset_el0, %0"::"r"(x));
-#define PMCNTENSET_EL0_READ(x)		Asm("mrs %0, pmcntenset_el0":"=r"(x));
+#define PMCCNTR_EL0_WRITE(x)        Asm("msr pmccntr_el0, %0"::"r"(x));
+#define PMCCNTR_EL0_READ(x)         Asm("mrs %0, pmccntr_el0":"=r"(x));
+#define PMCR_EL0_WRITE(x)           Asm("msr pmcr_el0, %0"::"r"(x));
+#define PMCR_EL0_READ(x)            Asm("mrs %0, pmcr_el0":"=r"(x));
+#define PMCNTENSET_EL0_WRITE(x)     Asm("msr pmcntenset_el0, %0"::"r"(x));
+#define PMCNTENSET_EL0_READ(x)      Asm("mrs %0, pmcntenset_el0":"=r"(x));
 
 #endif /* TOPPERS_ARM64_TOOL_H */

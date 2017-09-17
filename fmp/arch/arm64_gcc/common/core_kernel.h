@@ -68,10 +68,10 @@
 /*
  *  サポートする機能の定義
  */
-#define TOPPERS_TARGET_SUPPORT_ENA_INT			/* ena_intをサポートする */
-#define TOPPERS_TARGET_SUPPORT_DIS_INT			/* dis_intをサポートする */
+#define TOPPERS_TARGET_SUPPORT_ENA_INT  /* ena_intをサポートする */
+#define TOPPERS_TARGET_SUPPORT_DIS_INT  /* dis_intをサポートする */
 #ifdef TOPPERS_SYSTIM_LOCAL
-#define TOPPERS_TARGET_SUPPORT_GET_UTM			/* get_utmをサポートする */
+#define TOPPERS_TARGET_SUPPORT_GET_UTM  /* get_utmをサポートする */
 #endif /* TOPPERS_SYSTIM_LOCAL */
 
 /*
@@ -87,46 +87,46 @@
  *  例外フレーム構造体
  */
 typedef struct {
-	uint64_t sp;
-	uint64_t x19;
-	uint64_t x20;
-	uint64_t x21;
-	uint64_t x22;
-	uint64_t x23;
-	uint64_t x24;
-	uint64_t x25;
-	uint64_t x26;
-	uint64_t x27;
-	uint64_t x28;
-	uint64_t x29;
+    uint64_t sp;
+    uint64_t x19;
+    uint64_t x20;
+    uint64_t x21;
+    uint64_t x22;
+    uint64_t x23;
+    uint64_t x24;
+    uint64_t x25;
+    uint64_t x26;
+    uint64_t x27;
+    uint64_t x28;
+    uint64_t x29;
 //#ifdef USE_GIC_CPULOCK
-//	uint64_t lock_flag;
-//	uint64_t saved_iipm;
+//    uint64_t lock_flag;
+//    uint64_t saved_iipm;
 //#endif /* USE_GIC_CPULOCK */
-	uint64_t ipm;
-	uint64_t nest_count;
-	uint64_t pc;
-	uint64_t cpsr;
-	uint64_t x0;
-	uint64_t x1;
-	uint64_t x2;
-	uint64_t x3;
-	uint64_t x4;
-	uint64_t x5;
-	uint64_t x6;
-	uint64_t x7;
-	uint64_t x8;
-	uint64_t x9;
-	uint64_t x10;
-	uint64_t x11;
-	uint64_t x12;
-	uint64_t x13;
-	uint64_t x14;
-	uint64_t x15;
-	uint64_t x16;
-	uint64_t x17;
-	uint64_t x18;
-	uint64_t x30;
+    uint64_t ipm;
+    uint64_t nest_count;
+    uint64_t pc;
+    uint64_t cpsr;
+    uint64_t x0;
+    uint64_t x1;
+    uint64_t x2;
+    uint64_t x3;
+    uint64_t x4;
+    uint64_t x5;
+    uint64_t x6;
+    uint64_t x7;
+    uint64_t x8;
+    uint64_t x9;
+    uint64_t x10;
+    uint64_t x11;
+    uint64_t x12;
+    uint64_t x13;
+    uint64_t x14;
+    uint64_t x15;
+    uint64_t x16;
+    uint64_t x17;
+    uint64_t x18;
+    uint64_t x30;
 } exc_frame_t;
 
 /*
@@ -135,7 +135,7 @@ typedef struct {
 Inline uint32_t
 x_get_exc_raddr(void *p_excinf)
 {
-	return(((exc_frame_t *)(p_excinf))->pc);
+    return(((exc_frame_t *)(p_excinf))->pc);
 }
 
 /*
@@ -144,7 +144,7 @@ x_get_exc_raddr(void *p_excinf)
 Inline void
 x_set_exc_raddr(void *p_excinf, uint32_t pc)
 {
-	((exc_frame_t *)(p_excinf))->pc = pc;
+    ((exc_frame_t *)(p_excinf))->pc = pc;
 }
 
 /* 性能計測用のカウンタのデータ型 */
@@ -156,18 +156,18 @@ typedef uint64_t PERFCNT;
 Inline void
 x_init_pcc(void)
 {
-	uint32_t tmp;
+    uint32_t tmp;
 
-	/* 全カウンターの有効化 */
-	PMCR_EL0_READ(tmp);
+    /* 全カウンターの有効化 */
+    PMCR_EL0_READ(tmp);
 
-	PMCR_EL0_WRITE(tmp | PMCR_LC_BIT | PMCR_C_BIT);
+    PMCR_EL0_WRITE(tmp | PMCR_LC_BIT | PMCR_C_BIT);
 
-	/* パフォーマンスカウンタの有効化 */
-	PMCNTENSET_EL0_READ(tmp);
-	PMCNTENSET_EL0_WRITE(tmp | PMCNTENSET_C_BIT);
+    /* パフォーマンスカウンタの有効化 */
+    PMCNTENSET_EL0_READ(tmp);
+    PMCNTENSET_EL0_WRITE(tmp | PMCNTENSET_C_BIT);
 
-	INST_SYNC_BARRIER();
+    INST_SYNC_BARRIER();
 }
 
 /*
@@ -176,7 +176,7 @@ x_init_pcc(void)
 Inline void 
 x_get_pcc(PERFCNT *p_count)
 {
-	PMCCNTR_EL0_READ(*p_count);
+    PMCCNTR_EL0_READ(*p_count);
 }
 
 /*
@@ -185,11 +185,11 @@ x_get_pcc(PERFCNT *p_count)
 Inline void
 x_rst_pcc(void)
 {
-	uint32_t tmp;
+    uint32_t tmp;
 
-	PMCR_EL0_READ(tmp);
-	PMCR_EL0_WRITE(tmp | PMCR_C_BIT);
-	INST_SYNC_BARRIER();
+    PMCR_EL0_READ(tmp);
+    PMCR_EL0_WRITE(tmp | PMCR_C_BIT);
+    INST_SYNC_BARRIER();
 }
 
 #include "target_timer.h"
@@ -199,7 +199,7 @@ x_rst_pcc(void)
  */
 Inline ulong_t
 x_cnv_nsec(PERFCNT count) {
-	return ((ulong_t)(count * 1000 / timer_clock));
+    return ((ulong_t)(count * 1000 / timer_clock));
 }
 
 #endif /* TOPPERS_MACRO_ONLY */

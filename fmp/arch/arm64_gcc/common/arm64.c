@@ -49,9 +49,9 @@
 void
 icache_invalidate_all(void)
 {
-	IC_IALLU();
-	IC_IALLUIS();
-	data_sync_barrier();
+    IC_IALLU();
+    IC_IALLUIS();
+    data_sync_barrier();
 }
 
 /*
@@ -60,45 +60,45 @@ icache_invalidate_all(void)
 void
 dcache_invalidate_all()
 {
-	uint64_t clidr;
-	uint64_t ccsidr;
-	uint64_t ctype;
-	uint64_t level_max, level;
-	uint64_t way_max, way;
-	uint64_t set_max, set;
-	uint64_t log2linesize;
-	uint64_t bits;
+    uint64_t clidr;
+    uint64_t ccsidr;
+    uint64_t ctype;
+    uint64_t level_max, level;
+    uint64_t way_max, way;
+    uint64_t set_max, set;
+    uint64_t log2linesize;
+    uint64_t bits;
 
-	CLIDR_EL1_READ(clidr);
-	level_max = (clidr & CLIDR_LOC_MASK) >> CLIDR_LOC_SHIFT;
-	for (level = 0; level < level_max; level++) {
-		ctype = (clidr >> (CLIDR_CTYPE_SHIFT * level)) & CLIDR_CTYPE_MASK;
-		if ((ctype == CLIDR_CTYPE_DATA) || (ctype == CLIDR_CTYPE_SEPARATE)
-				|| (ctype == CLIDR_CTYPE_UNIFIED)) {
-			CSSELR_EL1_WRITE(level << CSSELR_LEVEL_SHIFT);
-			inst_sync_barrier();
-			CCSIDR_EL1_READ(ccsidr);
-			way_max = ((ccsidr & CCSIDR_ASSOCIATIVITY_MASK)
-					>> CCSIDR_ASSOCIATIVITY_SHIFT) + 1;
-			set_max = ((ccsidr & CCSIDR_NUMSETS_MASK)
-					>> CCSIDR_NUMSETS_SHIFT) + 1;
-			log2linesize = ((ccsidr & CCSIDR_LINESIZE_MASK)
-					>> CCSIDR_LINESIZE_SHIFT) + 4;
-			data_sync_barrier();
-			for (way = 0; way < way_max; way++) {
-				for (set = 0; set < set_max; set++) {
-					bits = 0;
-					bits |= way << __builtin_clz((uint32_t)way_max);
-					bits |= set << log2linesize;
-					bits |= level << DC_LEVEL_SHIFT;
-					dcache_invalidate_line(bits);
-				}
-			}
-		}
-	}
-	CSSELR_EL1_WRITE(0);
-	data_sync_barrier();
-	inst_sync_barrier();
+    CLIDR_EL1_READ(clidr);
+    level_max = (clidr & CLIDR_LOC_MASK) >> CLIDR_LOC_SHIFT;
+    for (level = 0; level < level_max; level++) {
+        ctype = (clidr >> (CLIDR_CTYPE_SHIFT * level)) & CLIDR_CTYPE_MASK;
+        if ((ctype == CLIDR_CTYPE_DATA) || (ctype == CLIDR_CTYPE_SEPARATE)
+                || (ctype == CLIDR_CTYPE_UNIFIED)) {
+            CSSELR_EL1_WRITE(level << CSSELR_LEVEL_SHIFT);
+            inst_sync_barrier();
+            CCSIDR_EL1_READ(ccsidr);
+            way_max = ((ccsidr & CCSIDR_ASSOCIATIVITY_MASK)
+                    >> CCSIDR_ASSOCIATIVITY_SHIFT) + 1;
+            set_max = ((ccsidr & CCSIDR_NUMSETS_MASK)
+                    >> CCSIDR_NUMSETS_SHIFT) + 1;
+            log2linesize = ((ccsidr & CCSIDR_LINESIZE_MASK)
+                    >> CCSIDR_LINESIZE_SHIFT) + 4;
+            data_sync_barrier();
+            for (way = 0; way < way_max; way++) {
+                for (set = 0; set < set_max; set++) {
+                    bits = 0;
+                    bits |= way << __builtin_clz((uint32_t)way_max);
+                    bits |= set << log2linesize;
+                    bits |= level << DC_LEVEL_SHIFT;
+                    dcache_invalidate_line(bits);
+                }
+            }
+        }
+    }
+    CSSELR_EL1_WRITE(0);
+    data_sync_barrier();
+    inst_sync_barrier();
 }
 
 /*
@@ -107,45 +107,45 @@ dcache_invalidate_all()
 void
 dcache_clean_and_invalidate_all()
 {
-	uint64_t clidr;
-	uint64_t ccsidr;
-	uint64_t ctype;
-	uint64_t level_max, level;
-	uint64_t way_max, way;
-	uint64_t set_max, set;
-	uint64_t log2linesize;
-	uint64_t bits;
+    uint64_t clidr;
+    uint64_t ccsidr;
+    uint64_t ctype;
+    uint64_t level_max, level;
+    uint64_t way_max, way;
+    uint64_t set_max, set;
+    uint64_t log2linesize;
+    uint64_t bits;
 
-	CLIDR_EL1_READ(clidr);
-	level_max = (clidr & CLIDR_LOC_MASK) >> CLIDR_LOC_SHIFT;
-	for (level = 0; level < level_max; level++) {
-		ctype = (clidr >> (CLIDR_CTYPE_SHIFT * level)) & CLIDR_CTYPE_MASK;
-		if ((ctype == CLIDR_CTYPE_DATA) || (ctype == CLIDR_CTYPE_SEPARATE)
-				|| (ctype == CLIDR_CTYPE_UNIFIED)) {
-			CSSELR_EL1_WRITE(level << CSSELR_LEVEL_SHIFT);
-			inst_sync_barrier();
-			CCSIDR_EL1_READ(ccsidr);
-			way_max = ((ccsidr & CCSIDR_ASSOCIATIVITY_MASK)
-					>> CCSIDR_ASSOCIATIVITY_SHIFT) + 1;
-			set_max = ((ccsidr & CCSIDR_NUMSETS_MASK)
-					>> CCSIDR_NUMSETS_SHIFT) + 1;
-			log2linesize = ((ccsidr & CCSIDR_LINESIZE_MASK)
-					>> CCSIDR_LINESIZE_SHIFT) + 4;
-			data_sync_barrier();
-			for (way = 0; way < way_max; way++) {
-				for (set = 0; set < set_max; set++) {
-					bits = 0;
-					bits |= way << __builtin_clz((uint32_t)way_max);
-					bits |= set << log2linesize;
-					bits |= level << DC_LEVEL_SHIFT;
-					dcache_clean_and_invalidate_line(bits);
-				}
-			}
-		}
-	}
-	CSSELR_EL1_WRITE(0);
-	data_sync_barrier();
-	inst_sync_barrier();
+    CLIDR_EL1_READ(clidr);
+    level_max = (clidr & CLIDR_LOC_MASK) >> CLIDR_LOC_SHIFT;
+    for (level = 0; level < level_max; level++) {
+        ctype = (clidr >> (CLIDR_CTYPE_SHIFT * level)) & CLIDR_CTYPE_MASK;
+        if ((ctype == CLIDR_CTYPE_DATA) || (ctype == CLIDR_CTYPE_SEPARATE)
+                || (ctype == CLIDR_CTYPE_UNIFIED)) {
+            CSSELR_EL1_WRITE(level << CSSELR_LEVEL_SHIFT);
+            inst_sync_barrier();
+            CCSIDR_EL1_READ(ccsidr);
+            way_max = ((ccsidr & CCSIDR_ASSOCIATIVITY_MASK)
+                    >> CCSIDR_ASSOCIATIVITY_SHIFT) + 1;
+            set_max = ((ccsidr & CCSIDR_NUMSETS_MASK)
+                    >> CCSIDR_NUMSETS_SHIFT) + 1;
+            log2linesize = ((ccsidr & CCSIDR_LINESIZE_MASK)
+                    >> CCSIDR_LINESIZE_SHIFT) + 4;
+            data_sync_barrier();
+            for (way = 0; way < way_max; way++) {
+                for (set = 0; set < set_max; set++) {
+                    bits = 0;
+                    bits |= way << __builtin_clz((uint32_t)way_max);
+                    bits |= set << log2linesize;
+                    bits |= level << DC_LEVEL_SHIFT;
+                    dcache_clean_and_invalidate_line(bits);
+                }
+            }
+        }
+    }
+    CSSELR_EL1_WRITE(0);
+    data_sync_barrier();
+    inst_sync_barrier();
 }
 
 /*
@@ -154,7 +154,7 @@ dcache_clean_and_invalidate_all()
 void
 icache_flush(void)
 {
-	icache_invalidate_all();
+    icache_invalidate_all();
 }
 
 /*
@@ -163,14 +163,14 @@ icache_flush(void)
 void
 dcache_flush(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	SCTLR_EL1_READ(bits);
-	if (bits & SCTLR_C_BIT) {
-		dcache_clean_and_invalidate_all();
-	} else {
-		dcache_invalidate_all();
-	}
+    SCTLR_EL1_READ(bits);
+    if (bits & SCTLR_C_BIT) {
+        dcache_clean_and_invalidate_all();
+    } else {
+        dcache_invalidate_all();
+    }
 }
 
 /*
@@ -179,8 +179,8 @@ dcache_flush(void)
 void
 cache_flush(void)
 {
-	icache_flush();
-	dcache_flush();
+    icache_flush();
+    dcache_flush();
 }
 
 /*
@@ -189,20 +189,20 @@ cache_flush(void)
 void
 icache_enable(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	SCTLR_EL1_READ(bits);
+    SCTLR_EL1_READ(bits);
 
-	/* すでにONならリターン */
-	if (bits & SCTLR_I_BIT) {
-		return;
-	}
+    /* すでにONならリターン */
+    if (bits & SCTLR_I_BIT) {
+        return;
+    }
 
-	icache_invalidate_all();
+    icache_invalidate_all();
 
-	bits |= SCTLR_I_BIT;
-	SCTLR_EL1_WRITE(bits);
-	inst_sync_barrier();
+    bits |= SCTLR_I_BIT;
+    SCTLR_EL1_WRITE(bits);
+    inst_sync_barrier();
 }
 
 /*
@@ -211,14 +211,14 @@ icache_enable(void)
 void
 icache_disable(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	SCTLR_EL1_READ(bits);
-	bits &= ~SCTLR_I_BIT;
-	SCTLR_EL1_WRITE(bits);
-	inst_sync_barrier();
+    SCTLR_EL1_READ(bits);
+    bits &= ~SCTLR_I_BIT;
+    SCTLR_EL1_WRITE(bits);
+    inst_sync_barrier();
 
-	icache_invalidate_all();
+    icache_invalidate_all();
 }
 
 /*
@@ -227,20 +227,20 @@ icache_disable(void)
 void
 dcache_enable(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	SCTLR_EL1_READ(bits);
+    SCTLR_EL1_READ(bits);
 
-	/* すでにONならリターン */
-	if (bits & SCTLR_C_BIT) {
-		return;
-	}
+    /* すでにONならリターン */
+    if (bits & SCTLR_C_BIT) {
+        return;
+    }
 
-	dcache_invalidate_all();
+    dcache_invalidate_all();
 
-	bits |= SCTLR_C_BIT;
-	SCTLR_EL1_WRITE(bits);
-	inst_sync_barrier();
+    bits |= SCTLR_C_BIT;
+    SCTLR_EL1_WRITE(bits);
+    inst_sync_barrier();
 }
 
 /*
@@ -253,17 +253,17 @@ dcache_enable(void)
 void
 dcache_disable(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	SCTLR_EL1_READ(bits);
-	if (bits & SCTLR_C_BIT) {
-		bits &= ~SCTLR_C_BIT;
-		SCTLR_EL1_WRITE(bits);
-		inst_sync_barrier();
-		dcache_clean_and_invalidate_all();
-	} else {
-		dcache_invalidate_all();
-	}
+    SCTLR_EL1_READ(bits);
+    if (bits & SCTLR_C_BIT) {
+        bits &= ~SCTLR_C_BIT;
+        SCTLR_EL1_WRITE(bits);
+        inst_sync_barrier();
+        dcache_clean_and_invalidate_all();
+    } else {
+        dcache_invalidate_all();
+    }
 }
 
 /*
@@ -272,8 +272,8 @@ dcache_disable(void)
 void
 cache_enable(void)
 {
-	icache_enable();
-	dcache_enable();
+    icache_enable();
+    dcache_enable();
 }
 
 /*
@@ -282,8 +282,8 @@ cache_enable(void)
 void
 cache_disable(void)
 {
-	icache_disable();
-	dcache_disable();
+    icache_disable();
+    dcache_disable();
 }
 
 /*
@@ -295,8 +295,8 @@ cache_disable(void)
 void
 tlb_invalidate_all(void)
 {
-	TLBI_VMALLE1();
-	data_sync_barrier();
+    TLBI_VMALLE1();
+    data_sync_barrier();
 }
 
 /*
@@ -311,7 +311,7 @@ static uintptr_t tt_pri[TNUM_PRCID][TT_FIRST_ENTRY_NUM] __attribute__ ((aligned(
 /*
  *  2段目以降の変換テーブル
  */
-#define TT_NUM_MAX				10
+#define TT_NUM_MAX              10
 static uintptr_t tt[TNUM_PRCID][TT_NUM_MAX][TT_ENTRY_NUM] __attribute__ ((aligned(TT_SIZE)));
 #define my_tt (tt[x_prc_index()])
 static int tt_num[TNUM_PRCID];
@@ -320,7 +320,7 @@ static int tt_num[TNUM_PRCID];
 /*
  *  メモリマップの設定を保存しておく配列
  */
-#define MMAP_NUM_MAX			10
+#define MMAP_NUM_MAX            10
 static mmap_t mmap[TNUM_PRCID][MMAP_NUM_MAX];
 #define my_mmap (mmap[x_prc_index()])
 static int mmap_num[TNUM_PRCID];
@@ -332,15 +332,15 @@ static int mmap_num[TNUM_PRCID];
 void
 mmu_mmap_init(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < MMAP_NUM_MAX; i++) {
-		my_mmap[i].pa = 0;
-		my_mmap[i].va = 0;
-		my_mmap[i].size = 0;
-		my_mmap[i].attr = MEM_ATTR_SO;
-		my_mmap[i].ns = MEM_NS_NONSECURE;
-	}
+    for (i = 0; i < MMAP_NUM_MAX; i++) {
+        my_mmap[i].pa = 0;
+        my_mmap[i].va = 0;
+        my_mmap[i].size = 0;
+        my_mmap[i].attr = MEM_ATTR_SO;
+        my_mmap[i].ns = MEM_NS_NONSECURE;
+    }
 }
 
 /*
@@ -349,39 +349,39 @@ mmu_mmap_init(void)
 void
 mmu_mmap_add(const mmap_t *pmm)
 {
-	int insert_index;
-	int i;
+    int insert_index;
+    int i;
 
-	assert((0 <= my_mmap_num) && (my_mmap_num < MMAP_NUM_MAX));
-	assert((pmm->pa & TT_OFFSET_MASK) == 0x0);
-	assert((pmm->va & TT_OFFSET_MASK) == 0x0);
-	assert((pmm->size & TT_OFFSET_MASK) == 0x0);
+    assert((0 <= my_mmap_num) && (my_mmap_num < MMAP_NUM_MAX));
+    assert((pmm->pa & TT_OFFSET_MASK) == 0x0);
+    assert((pmm->va & TT_OFFSET_MASK) == 0x0);
+    assert((pmm->size & TT_OFFSET_MASK) == 0x0);
 
-	if (pmm->size == 0)
-		return;
+    if (pmm->size == 0)
+        return;
 
-	/*
-	 *  メモリマップの設定の挿入場所を探索
-	 */
-	insert_index = 0;
-	while ((my_mmap[insert_index].va < pmm->va) && (insert_index < my_mmap_num)) {
-		insert_index++;
-	}
+    /*
+     *  メモリマップの設定の挿入場所を探索
+     */
+    insert_index = 0;
+    while ((my_mmap[insert_index].va < pmm->va) && (insert_index < my_mmap_num)) {
+        insert_index++;
+    }
 
-	assert((insert_index == 0) ||
-			((my_mmap[insert_index - 1].va + my_mmap[insert_index - 1].size)
-			 <= pmm->va));
+    assert((insert_index == 0) ||
+            ((my_mmap[insert_index - 1].va + my_mmap[insert_index - 1].size)
+             <= pmm->va));
 
-	/*
-	 *  メモリマップの設定の挿入
-	 */
-	for (i = my_mmap_num - 1; i >= insert_index; i--) {
-		my_mmap[i + 1] = my_mmap[i];
-	}
-	my_mmap[insert_index] = *pmm;
-	my_mmap_num++;
+    /*
+     *  メモリマップの設定の挿入
+     */
+    for (i = my_mmap_num - 1; i >= insert_index; i--) {
+        my_mmap[i + 1] = my_mmap[i];
+    }
+    my_mmap[insert_index] = *pmm;
+    my_mmap_num++;
 
-	assert(my_mmap_num < MMAP_NUM_MAX);
+    assert(my_mmap_num < MMAP_NUM_MAX);
 }
 
 /*
@@ -390,106 +390,106 @@ mmu_mmap_add(const mmap_t *pmm)
 int
 mmu_tt_init(int mmap_index, uintptr_t va, uintptr_t *ptt, int level)
 {
-	int lvl_sft;
-	uintptr_t lvl_entspc_sz;	/* 現レベルの1エントリ分アドレス空間サイズ */
-	uintptr_t lvl_allspc_sz;	/* 現レベルの全エントリ分アドレス空間サイズ */
-	uintptr_t va_base;
-	mmap_t *pmmap;
-	uintptr_t desc;
+    int lvl_sft;
+    uintptr_t lvl_entspc_sz;    /* 現レベルの1エントリ分アドレス空間サイズ */
+    uintptr_t lvl_allspc_sz;    /* 現レベルの全エントリ分アドレス空間サイズ */
+    uintptr_t va_base;
+    mmap_t *pmmap;
+    uintptr_t desc;
 
-	assert(level <= TT_LAST_LEVEL);
+    assert(level <= TT_LAST_LEVEL);
 
-	/*
-	 *  現レベルで設定するアドレス空間サイズの計算
-	 */
-	lvl_sft = TT_GRANULE_WIDTH + (TT_LAST_LEVEL - level) * TT_LEVEL_WIDTH;
-	lvl_entspc_sz = 1 << lvl_sft;
-	if (level == TT_FIRST_LEVEL) {
-		lvl_allspc_sz = ADDR_SPACE_SIZE;
-	} else {
-		lvl_allspc_sz = 1 << (lvl_sft + TT_LEVEL_WIDTH);
-	}
+    /*
+     *  現レベルで設定するアドレス空間サイズの計算
+     */
+    lvl_sft = TT_GRANULE_WIDTH + (TT_LAST_LEVEL - level) * TT_LEVEL_WIDTH;
+    lvl_entspc_sz = 1 << lvl_sft;
+    if (level == TT_FIRST_LEVEL) {
+        lvl_allspc_sz = ADDR_SPACE_SIZE;
+    } else {
+        lvl_allspc_sz = 1 << (lvl_sft + TT_LEVEL_WIDTH);
+    }
 
-	/*
-	 *  変換テーブルの各エントリを設定
-	 */
-	va_base = va;
-	pmmap = &my_mmap[mmap_index];
-	while ((va_base <= va) && (va < va_base + lvl_allspc_sz)) {
-		/*
-		 *  次のメモリマップの設定へ
-		 */
-		if (((pmmap->va + pmmap->size) <= va) && (mmap_index < my_mmap_num)) {
-			mmap_index++;
-			pmmap = &my_mmap[mmap_index];
-			continue;
-		}
+    /*
+     *  変換テーブルの各エントリを設定
+     */
+    va_base = va;
+    pmmap = &my_mmap[mmap_index];
+    while ((va_base <= va) && (va < va_base + lvl_allspc_sz)) {
+        /*
+         *  次のメモリマップの設定へ
+         */
+        if (((pmmap->va + pmmap->size) <= va) && (mmap_index < my_mmap_num)) {
+            mmap_index++;
+            pmmap = &my_mmap[mmap_index];
+            continue;
+        }
 
-		/*
-		*  メモリマップの設定がないので，
-		*  変換テーブルのエントリをINVALIDで埋める
-		*/
-		if ((mmap_index >= my_mmap_num) || (pmmap->va >= (va + lvl_entspc_sz))) {
-			desc = TT_DESC_INVALID;
+        /*
+        *  メモリマップの設定がないので，
+        *  変換テーブルのエントリをINVALIDで埋める
+        */
+        if ((mmap_index >= my_mmap_num) || (pmmap->va >= (va + lvl_entspc_sz))) {
+            desc = TT_DESC_INVALID;
 
-		/*
-		*  メモリマップの設定通りに
-		*  変換テーブルのエントリをBLOCK or PAGEで埋める
-		*/
-		} else if ((pmmap->va <= va) &&
-				((pmmap->va + pmmap->size) >= (va + lvl_entspc_sz))) {
-			if (level == 3) {
-				desc = TT_DESC_PAGE;
-			} else {
-				desc = TT_DESC_BLOCK;
-			}
-			desc = desc | TT_AF_BIT;
-			switch (pmmap->attr) {
-				case (MEM_ATTR_SO) :
-					desc = desc | TT_SH_OSH;
-					desc |= (MEM_ATTR_SO_ATTRINDX << TT_ATTRINDX_SHIFT);
-					break;
-				case (MEM_ATTR_DEV) :
-					desc = desc | TT_SH_OSH;
-					desc |= (MEM_ATTR_DEV_ATTRINDX << TT_ATTRINDX_SHIFT);
-					break;
-				case (MEM_ATTR_NML_NC) :
-					desc = desc | TT_SH_ISH;
-					desc |= (MEM_ATTR_NML_NC_ATTRINDX << TT_ATTRINDX_SHIFT);
-					break;
-				case (MEM_ATTR_NML_C) :
-					desc = desc | TT_SH_ISH;
-					desc |= (MEM_ATTR_NML_C_ATTRINDX << TT_ATTRINDX_SHIFT);
-					break;
-				default :
-					desc = desc | TT_SH_OSH;
-					desc |= (MEM_ATTR_SO_ATTRINDX << TT_ATTRINDX_SHIFT);
-					break;
-			}
-			if (pmmap->ns == MEM_NS_NONSECURE) {
-				desc = desc | TT_NS_BIT;
-			}
-			desc = desc | (va - pmmap->va + pmmap->pa);
+        /*
+        *  メモリマップの設定通りに
+        *  変換テーブルのエントリをBLOCK or PAGEで埋める
+        */
+        } else if ((pmmap->va <= va) &&
+                ((pmmap->va + pmmap->size) >= (va + lvl_entspc_sz))) {
+            if (level == 3) {
+                desc = TT_DESC_PAGE;
+            } else {
+                desc = TT_DESC_BLOCK;
+            }
+            desc = desc | TT_AF_BIT;
+            switch (pmmap->attr) {
+                case (MEM_ATTR_SO) :
+                    desc = desc | TT_SH_OSH;
+                    desc |= (MEM_ATTR_SO_ATTRINDX << TT_ATTRINDX_SHIFT);
+                    break;
+                case (MEM_ATTR_DEV) :
+                    desc = desc | TT_SH_OSH;
+                    desc |= (MEM_ATTR_DEV_ATTRINDX << TT_ATTRINDX_SHIFT);
+                    break;
+                case (MEM_ATTR_NML_NC) :
+                    desc = desc | TT_SH_ISH;
+                    desc |= (MEM_ATTR_NML_NC_ATTRINDX << TT_ATTRINDX_SHIFT);
+                    break;
+                case (MEM_ATTR_NML_C) :
+                    desc = desc | TT_SH_ISH;
+                    desc |= (MEM_ATTR_NML_C_ATTRINDX << TT_ATTRINDX_SHIFT);
+                    break;
+                default :
+                    desc = desc | TT_SH_OSH;
+                    desc |= (MEM_ATTR_SO_ATTRINDX << TT_ATTRINDX_SHIFT);
+                    break;
+            }
+            if (pmmap->ns == MEM_NS_NONSECURE) {
+                desc = desc | TT_NS_BIT;
+            }
+            desc = desc | (va - pmmap->va + pmmap->pa);
 
-		/*
-		*  メモリマップの設定が細かいので，
-		*  変換テーブルのエントリをTABLEにして次段へ
-		*/
-		} else {
-			assert(my_tt_num <= TT_NUM_MAX);
-			desc = TT_DESC_TABLE | (uintptr_t)my_tt[my_tt_num];
-			mmap_index = mmu_tt_init(mmap_index, va, my_tt[my_tt_num++], level + 1);
-			pmmap = &my_mmap[mmap_index];
-		}
+        /*
+        *  メモリマップの設定が細かいので，
+        *  変換テーブルのエントリをTABLEにして次段へ
+        */
+        } else {
+            assert(my_tt_num <= TT_NUM_MAX);
+            desc = TT_DESC_TABLE | (uintptr_t)my_tt[my_tt_num];
+            mmap_index = mmu_tt_init(mmap_index, va, my_tt[my_tt_num++], level + 1);
+            pmmap = &my_mmap[mmap_index];
+        }
 
-		/*
-		 *  変換テーブルのエントリの書き込み
-		 */
-		*ptt++ = desc;
-		va += lvl_entspc_sz;
-	}
+        /*
+         *  変換テーブルのエントリの書き込み
+         */
+        *ptt++ = desc;
+        va += lvl_entspc_sz;
+    }
 
-	return mmap_index;
+    return mmap_index;
 }
 
 /*
@@ -498,56 +498,56 @@ mmu_tt_init(int mmap_index, uintptr_t va, uintptr_t *ptt, int level)
 void
 mmu_init(void)
 {
-	uint64_t bits;
+    uint64_t bits;
 
-	/* パイプラインをフラッシュ */
-	inst_sync_barrier();
+    /* パイプラインをフラッシュ */
+    inst_sync_barrier();
 
-	/* メモリマップ設定用変数を初期化 */
-	my_mmap_num = 0;
-	mmu_mmap_init();
+    /* メモリマップ設定用変数を初期化 */
+    my_mmap_num = 0;
+    mmu_mmap_init();
 
-	/* ターゲット依存部での変換テーブルの初期化 */
-	target_mmu_init();
+    /* ターゲット依存部での変換テーブルの初期化 */
+    target_mmu_init();
 
-	/* 変換テーブルの作成 */
-	my_tt_num = 0;
-	mmu_tt_init(0, 0x0, my_tt_pri, TT_FIRST_LEVEL);
+    /* 変換テーブルの作成 */
+    my_tt_num = 0;
+    mmu_tt_init(0, 0x0, my_tt_pri, TT_FIRST_LEVEL);
 
-	/* メモリの属性設定 */
-	bits = 0;
-	bits = MAIR_ATTR_SO		<< (MAIR_ATTR_SHIFT * MEM_ATTR_SO_ATTRINDX);
-	bits = MAIR_ATTR_DEV	<< (MAIR_ATTR_SHIFT * MEM_ATTR_DEV_ATTRINDX);
-	bits = MAIR_ATTR_NML_NC	<< (MAIR_ATTR_SHIFT * MEM_ATTR_NML_NC_ATTRINDX);
-	bits = MAIR_ATTR_NML_C	<< (MAIR_ATTR_SHIFT * MEM_ATTR_NML_C_ATTRINDX);
-	MAIR_EL1_WRITE(bits);
+    /* メモリの属性設定 */
+    bits = 0;
+    bits = MAIR_ATTR_SO     << (MAIR_ATTR_SHIFT * MEM_ATTR_SO_ATTRINDX);
+    bits = MAIR_ATTR_DEV    << (MAIR_ATTR_SHIFT * MEM_ATTR_DEV_ATTRINDX);
+    bits = MAIR_ATTR_NML_NC << (MAIR_ATTR_SHIFT * MEM_ATTR_NML_NC_ATTRINDX);
+    bits = MAIR_ATTR_NML_C  << (MAIR_ATTR_SHIFT * MEM_ATTR_NML_C_ATTRINDX);
+    MAIR_EL1_WRITE(bits);
 
-	/* TLBのインバリデート */
-	tlb_invalidate_all();
+    /* TLBのインバリデート */
+    tlb_invalidate_all();
 
-	/* アドレス変換の制御設定 */
-	bits = 0;
-	bits |= TCR_IPS_4GB;
-	bits |= TCR_TG0_4KB;
-	bits |= TCR_SH0_INNER_SHAREABLE;
-	bits |= TCR_ORGN0_WBWAC;
-	bits |= TCR_IRGN0_WBWAC;
-	bits |= (64 - ADDR_SPACE_WIDTH) << TCR_T0SZ_SHIFT;
-	TCR_EL1_WRITE(bits);
+    /* アドレス変換の制御設定 */
+    bits = 0;
+    bits |= TCR_IPS_4GB;
+    bits |= TCR_TG0_4KB;
+    bits |= TCR_SH0_INNER_SHAREABLE;
+    bits |= TCR_ORGN0_WBWAC;
+    bits |= TCR_IRGN0_WBWAC;
+    bits |= (64 - ADDR_SPACE_WIDTH) << TCR_T0SZ_SHIFT;
+    TCR_EL1_WRITE(bits);
 
-	/* 変換テーブルをセットする */
-	TTBR0_EL1_WRITE((uint64_t)my_tt_pri);
+    /* 変換テーブルをセットする */
+    TTBR0_EL1_WRITE((uint64_t)my_tt_pri);
 
-	/* 確実に変換テーブルをメモリに書き込み，設定を反映させる */
-	data_sync_barrier();
-	inst_sync_barrier();
+    /* 確実に変換テーブルをメモリに書き込み，設定を反映させる */
+    data_sync_barrier();
+    inst_sync_barrier();
 
-	/* MMUを有効にする*/
-	bits = 0;
-	SCTLR_EL1_READ(bits);
-	bits |= SCTLR_M_BIT;
-	SCTLR_EL1_WRITE(bits);
+    /* MMUを有効にする*/
+    bits = 0;
+    SCTLR_EL1_READ(bits);
+    bits |= SCTLR_M_BIT;
+    SCTLR_EL1_WRITE(bits);
 
-	/* 確実に設定を反映させる */
-	inst_sync_barrier();
+    /* 確実に設定を反映させる */
+    inst_sync_barrier();
 }

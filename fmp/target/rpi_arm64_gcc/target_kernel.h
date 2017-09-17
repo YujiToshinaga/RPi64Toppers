@@ -54,8 +54,8 @@
 /*
  *  システム時刻の管理方式
  */
-#define TOPPERS_SYSTIM_LOCAL		/* ローカルタイマ方式のシステム時刻 */
-//#define TOPPERS_SYSTIM_GLOBAL		/* グローバルタイマ方式のシステム時刻 */
+#define TOPPERS_SYSTIM_LOCAL        /* ローカルタイマ方式のシステム時刻 */
+//#define TOPPERS_SYSTIM_GLOBAL       /* グローバルタイマ方式のシステム時刻 */
 
 /*
  *  マスタプロセッサ（ID）

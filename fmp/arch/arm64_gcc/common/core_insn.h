@@ -65,9 +65,9 @@
 Inline uint32_t
 current_daif(void)
 {
-	uint32_t sr;
-	Asm("mrs %0, daif" : "=r"(sr));
-	return(sr);
+    uint32_t sr;
+    Asm("mrs %0, daif" : "=r"(sr));
+    return(sr);
 }
 
 /*
@@ -76,7 +76,7 @@ current_daif(void)
 Inline void
 set_daif(uint32_t sr)
 {
-	Asm("msr daif, %0" : : "r"(sr) : "cc");
+    Asm("msr daif, %0" : : "r"(sr) : "cc");
 }
 
 #endif /* CORE_INSN_H */

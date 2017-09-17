@@ -38,7 +38,7 @@
  */
 
 /*
- *		テストプログラムのターゲット依存定義（RPI-ARM64用）
+ *      テストプログラムのターゲット依存定義（RPI-ARM64用）
  */
 
 #ifndef TOPPERS_TARGET_TEST_H

@@ -56,28 +56,28 @@
 /*
  *  エラーチェック方法の指定
  */
-#define CHECK_STKSZ_ALIGN	16	/* スタックサイズのアライン単位 */
-#define CHECK_FUNC_ALIGN	4	/* 関数のアライン単位 */
-#define CHECK_FUNC_NONNULL		/* 関数の非NULLチェック */
-#define CHECK_STACK_ALIGN	16	/* スタック領域のアライン単位 */
-#define CHECK_STACK_NONNULL		/* スタック領域の非NULLチェック */
-#define CHECK_MPF_ALIGN		4	/* 固定長メモリプール領域のアライン単位 */
-#define CHECK_MPF_NONNULL		/* 固定長メモリプール領域の非NULLチェック */
-#define CHECK_MB_ALIGN		4	/* 管理領域のアライン単位 */
+#define CHECK_STKSZ_ALIGN   16  /* スタックサイズのアライン単位 */
+#define CHECK_FUNC_ALIGN    4   /* 関数のアライン単位 */
+#define CHECK_FUNC_NONNULL      /* 関数の非NULLチェック */
+#define CHECK_STACK_ALIGN   16  /* スタック領域のアライン単位 */
+#define CHECK_STACK_NONNULL     /* スタック領域の非NULLチェック */
+#define CHECK_MPF_ALIGN     4   /* 固定長メモリプール領域のアライン単位 */
+#define CHECK_MPF_NONNULL       /* 固定長メモリプール領域の非NULLチェック */
+#define CHECK_MB_ALIGN      4   /* 管理領域のアライン単位 */
 
 /*
  *  CPUロックとするDAIFのパターン
  */
 //#ifdef TOPPERS_SAFEG_SECURE
-//#define DAIF_CPULOCK	(DAIF_F_BIT | DAIF_I_BIT)
+//#define DAIF_CPULOCK    (DAIF_F_BIT | DAIF_I_BIT)
 //#else  /* !TOPPERS_SAFEG_SECURE */
-#define DAIF_CPULOCK	(DAIF_I_BIT)
+#define DAIF_CPULOCK    (DAIF_I_BIT)
 //#endif /* TOPPERS_SAFEG_SECURE */
 
 /*
  *  割込みロックとするDAIFのパターン
  */
-#define DAIF_INTLOCK	(DAIF_F_BIT | DAIF_I_BIT)
+#define DAIF_INTLOCK    (DAIF_F_BIT | DAIF_I_BIT)
 
 /*
  *  DAIFに常にセットするパターン
@@ -91,43 +91,43 @@
 /*
  *  例外の番号
  */
-#define EXCH_NO_CUR_SP0_SYNC		0
-#define EXCH_NO_CUR_SP0_IRQ			1
-#define EXCH_NO_CUR_SP0_FIQ			2
-#define EXCH_NO_CUR_SP0_SERR		3
-#define EXCH_NO_CUR_SPX_SYNC		4
-#define EXCH_NO_CUR_SPX_IRQ			5
-#define EXCH_NO_CUR_SPX_FIQ			6
-#define EXCH_NO_CUR_SPX_SERR		7
-#define EXCH_NO_L64_SYNC			8
-#define EXCH_NO_L64_IRQ				9
-#define EXCH_NO_L64_FIQ				10
-#define EXCH_NO_L64_SERR			11
-#define EXCH_NO_L32_SYNC			12
-#define EXCH_NO_L32_IRQ				13
-#define EXCH_NO_L32_FIQ				14
-#define EXCH_NO_L32_SERR			15
+#define EXCH_NO_CUR_SP0_SYNC        0
+#define EXCH_NO_CUR_SP0_IRQ         1
+#define EXCH_NO_CUR_SP0_FIQ         2
+#define EXCH_NO_CUR_SP0_SERR        3
+#define EXCH_NO_CUR_SPX_SYNC        4
+#define EXCH_NO_CUR_SPX_IRQ         5
+#define EXCH_NO_CUR_SPX_FIQ         6
+#define EXCH_NO_CUR_SPX_SERR        7
+#define EXCH_NO_L64_SYNC            8
+#define EXCH_NO_L64_IRQ             9
+#define EXCH_NO_L64_FIQ             10
+#define EXCH_NO_L64_SERR            11
+#define EXCH_NO_L32_SYNC            12
+#define EXCH_NO_L32_IRQ             13
+#define EXCH_NO_L32_FIQ             14
+#define EXCH_NO_L32_SERR            15
 
 /*
  *  例外の個数
  */  
-#define TMIN_EXCH         			0
-#define TMAX_EXCH         			15
-#define TNUM_EXCH         			16
+#define TMIN_EXCH                   0
+#define TMAX_EXCH                   15
+#define TNUM_EXCH                   16
 
 /*
  *  メモリ管理
  */
-#define MEM_ATTR_SO					0
-#define MEM_ATTR_DEV				1
-#define MEM_ATTR_NML_NC				2
-#define MEM_ATTR_NML_C				3
-#define MEM_ATTR_SO_ATTRINDX		0
-#define MEM_ATTR_DEV_ATTRINDX		1
-#define MEM_ATTR_NML_NC_ATTRINDX	2
-#define MEM_ATTR_NML_C_ATTRINDX		3
-#define MEM_NS_SECURE				0
-#define MEM_NS_NONSECURE			1
+#define MEM_ATTR_SO                 0
+#define MEM_ATTR_DEV                1
+#define MEM_ATTR_NML_NC             2
+#define MEM_ATTR_NML_C              3
+#define MEM_ATTR_SO_ATTRINDX        0
+#define MEM_ATTR_DEV_ATTRINDX       1
+#define MEM_ATTR_NML_NC_ATTRINDX    2
+#define MEM_ATTR_NML_C_ATTRINDX     3
+#define MEM_NS_SECURE               0
+#define MEM_NS_NONSECURE            1
 
 #ifndef TOPPERS_MACRO_ONLY
 
@@ -154,12 +154,12 @@ typedef struct task_context_block {
  */
 Inline bool_t
 x_sense_mprc(void){
-	if(x_prc_index() == (TOPPERS_MASTER_PRCID - 1)) {
-		return true;
-	}
-	else {
-		return false;
-	}
+    if(x_prc_index() == (TOPPERS_MASTER_PRCID - 1)) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 /*
@@ -186,24 +186,24 @@ x_sense_mprc(void){
 Inline bool_t
 sense_context(void)
 {
-	uint32_t tmp;
-	uint32_t saved_daif;
-	TPCB* my_p_tpcb;
+    uint32_t tmp;
+    uint32_t saved_daif;
+    TPCB* my_p_tpcb;
 
-	/*
-	 *  マイグレーションされることを考慮して割込みを禁止してからチェッ
-	 *  クする．
-	 */
-	saved_daif = current_daif();
-	set_daif(saved_daif | DAIF_CPULOCK | DAIF_ALWAYS_SET);
-	ARM_MEMORY_CHANGED;
-	my_p_tpcb = get_my_p_tpcb();
-	tmp = my_p_tpcb->excpt_nest_count;
-	set_daif(saved_daif);
-	ARM_MEMORY_CHANGED;
+    /*
+     *  マイグレーションされることを考慮して割込みを禁止してからチェッ
+     *  クする．
+     */
+    saved_daif = current_daif();
+    set_daif(saved_daif | DAIF_CPULOCK | DAIF_ALWAYS_SET);
+    ARM_MEMORY_CHANGED;
+    my_p_tpcb = get_my_p_tpcb();
+    tmp = my_p_tpcb->excpt_nest_count;
+    set_daif(saved_daif);
+    ARM_MEMORY_CHANGED;
 
-	return(tmp > 0U);
-	return 0;
+    return(tmp > 0U);
+    return 0;
 }
 
 /*
@@ -212,9 +212,9 @@ sense_context(void)
 Inline void
 x_lock_cpu(void)
 {
-	set_daif(current_daif() | DAIF_CPULOCK | DAIF_ALWAYS_SET);
-	/* クリティカルセクションの前後でメモリが書き換わる可能性がある */
-	ARM_MEMORY_CHANGED;
+    set_daif(current_daif() | DAIF_CPULOCK | DAIF_ALWAYS_SET);
+    /* クリティカルセクションの前後でメモリが書き換わる可能性がある */
+    ARM_MEMORY_CHANGED;
 }
 
 #define t_lock_cpu()   x_lock_cpu()
@@ -226,9 +226,9 @@ x_lock_cpu(void)
 Inline void
 x_unlock_cpu(void)
 {
-	/* クリティカルセクションの前後でメモリが書き換わる可能性がある */
-	ARM_MEMORY_CHANGED;
-	set_daif((current_daif() & (~DAIF_CPULOCK)) | DAIF_ALWAYS_SET);
+    /* クリティカルセクションの前後でメモリが書き換わる可能性がある */
+    ARM_MEMORY_CHANGED;
+    set_daif((current_daif() & (~DAIF_CPULOCK)) | DAIF_ALWAYS_SET);
 }
 
 #define t_unlock_cpu() x_unlock_cpu()
@@ -240,7 +240,7 @@ x_unlock_cpu(void)
 Inline bool_t
 x_sense_lock(void)
 {
-	return((current_daif() & DAIF_CPULOCK) == DAIF_CPULOCK);
+    return((current_daif() & DAIF_CPULOCK) == DAIF_CPULOCK);
 }
 
 #define t_sense_lock()    x_sense_lock()
@@ -254,7 +254,7 @@ x_sense_lock(void)
 Inline bool_t
 sense_tskctx_unl(void)
 {
-	return((!sense_context() && !t_sense_lock()));
+    return((!sense_context() && !t_sense_lock()));
 }
 
 /*
@@ -263,7 +263,7 @@ sense_tskctx_unl(void)
 Inline bool_t
 sense_intctx_unl(void)
 {
-	return((sense_context() && !i_sense_lock()));
+    return((sense_context() && !i_sense_lock()));
 }
 
 /*
@@ -363,7 +363,7 @@ extern const FP* const p_exch_table[TNUM_PRCID];
 Inline bool_t
 exc_sense_context(void *p_excinf)
 {
-	return(((exc_frame_t *)(p_excinf))->nest_count != 0U);
+    return(((exc_frame_t *)(p_excinf))->nest_count != 0U);
 }
 
 /*
@@ -372,7 +372,7 @@ exc_sense_context(void *p_excinf)
 Inline uint32_t
 exc_get_sr(void *p_excinf)
 {
-	return((uint32_t)(((exc_frame_t *)(p_excinf))->cpsr));
+    return((uint32_t)(((exc_frame_t *)(p_excinf))->cpsr));
 }
 
 //#ifndef USE_GIC_CPULOCK
@@ -383,7 +383,7 @@ exc_get_sr(void *p_excinf)
 Inline PRI
 exc_get_ipm(void *p_excinf)
 {
-	return((PRI)(((exc_frame_t *)(p_excinf))->ipm));
+    return((PRI)(((exc_frame_t *)(p_excinf))->ipm));
 }
 
 /*
@@ -392,7 +392,7 @@ exc_get_ipm(void *p_excinf)
 Inline bool_t
 exc_sense_lock(void *p_excinf)
 {
-	return((exc_get_sr(p_excinf) & DAIF_CPULOCK) == DAIF_CPULOCK);
+    return((exc_get_sr(p_excinf) & DAIF_CPULOCK) == DAIF_CPULOCK);
 }
 
 /*
@@ -401,7 +401,7 @@ exc_sense_lock(void *p_excinf)
 Inline bool_t
 exc_sense_int_lock(void *p_excinf)
 {
-	return((exc_get_sr(p_excinf) & DAIF_INTLOCK) == DAIF_INTLOCK);
+    return((exc_get_sr(p_excinf) & DAIF_INTLOCK) == DAIF_INTLOCK);
 }
 
 //#endif /* USE_GIC_CPULOCK */
@@ -419,10 +419,10 @@ exc_sense_int_lock(void *p_excinf)
 Inline bool_t
 exc_sense_intmask(void *p_excinf)
 {
-	return(!exc_sense_context(p_excinf)
-		   && (exc_get_ipm(p_excinf) == 0U)
-		   && !exc_sense_lock(p_excinf)
-		   && !exc_sense_int_lock(p_excinf));
+    return(!exc_sense_context(p_excinf)
+           && (exc_get_ipm(p_excinf) == 0U)
+           && !exc_sense_lock(p_excinf)
+           && !exc_sense_int_lock(p_excinf));
 }
 
 /*
