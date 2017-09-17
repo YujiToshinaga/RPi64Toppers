@@ -42,7 +42,7 @@
 
 
 /*
- *		テストプログラムのコア依存定義（ARM64用）
+ *      テストプログラムのコア依存定義（ARM64用）
  */
 
 #ifndef TOPPERS_CORE_TEST_H
@@ -51,19 +51,19 @@
 /*
  *  コアで共通な定義
  */
-#define CPUEXC1         	(0x10000|EXCH_NO_CUR_SPX_SYNC)
-#define CPUEXC2         	(0x20000|EXCH_NO_CUR_SPX_SYNC)
-#define CPUEXC3         	(0x30000|EXCH_NO_CUR_SPX_SYNC)
-#define CPUEXC4         	(0x40000|EXCH_NO_CUR_SPX_SYNC)
-#define RAISE_CPU_EXCEPTION	(*((volatile int *) 0xFFFFFEC1U));\
-								Asm("isb":::"memory") /* ロードエラー例外 */
-//#define RAISE_CPU_EXCEPTION	Asm("svc #0")
+#define CPUEXC1             (0x10000|EXCH_NO_CUR_SPX_SYNC)
+#define CPUEXC2             (0x20000|EXCH_NO_CUR_SPX_SYNC)
+#define CPUEXC3             (0x30000|EXCH_NO_CUR_SPX_SYNC)
+#define CPUEXC4             (0x40000|EXCH_NO_CUR_SPX_SYNC)
+#define RAISE_CPU_EXCEPTION (*((volatile int *) 0xFFFFFEC1U));\
+                                Asm("isb":::"memory") /* ロードエラー例外 */
+//#define RAISE_CPU_EXCEPTION     Asm("svc #0")
 
 // nsオーダの測定を提供する場合は下記を有効にする
-//#define HISTTIM					uint64_t
-//#define HIST_GET_TIM(p_time)	CNTPCT_EL0_READ(*p_time)
-//#define HIST_CONV_TIM(time)		((uint64_t)(time) * 1000 * 1000 / (uint64_t)timer_clock)
-//#define HIST_BM_HOOK()			cache_flush()
+//#define HISTTIM                 uint64_t
+//#define HIST_GET_TIM(p_time)    CNTPCT_EL0_READ(*p_time)
+//#define HIST_CONV_TIM(time)     ((uint64_t)(time) * 1000 * 1000 / (uint64_t)timer_clock)
+//#define HIST_BM_HOOK()          cache_flush()
 
 //#define HISTTIM  PERFCNT
 //#define HIST_GET_TIM(p_time)  ((void) x_get_pcc(p_time));

@@ -68,17 +68,17 @@
 .macro toppers_asm_custom_idle
 //#ifndef USE_GIC_CPULOCK
 #ifndef TOPPERS_ENABLE_QEMU
-	wfi
+    wfi
 #endif /* TOPPERS_ENABLE_QEMU */
-	mov   x0, #(DAIF_ALWAYS_SET) /* 割り込み許可 */
-	msr   daif, x0
-	isb							/* シミュレータ環境ではISBを入れないと */
-								/* 割込み許可区間が生まれない */
-	mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET) /* CPUロック状態へ */
-	msr   daif, x0
+    mov   x0, #(DAIF_ALWAYS_SET) /* 割り込み許可 */
+    msr   daif, x0
+    isb                         /* シミュレータ環境ではISBを入れないと */
+                                /* 割込み許可区間が生まれない */
+    mov   x0, #(DAIF_CPULOCK AOR DAIF_ALWAYS_SET) /* CPUロック状態へ */
+    msr   daif, x0
 //#else /* USE_GIC_CPULOCK */
-//	gic_unlock_cpu x23, x24, w25
-//	gic_lock_cpu x23, x24, w25
+//    gic_unlock_cpu x23, x24, w25
+//    gic_lock_cpu x23, x24, w25
 //#endif /* USE_GIC_CPULOCK */
 .endm
 #endif /* TOPPRS_NONUSE_CORE_DEFAULT_CUSTOM_IDLE */

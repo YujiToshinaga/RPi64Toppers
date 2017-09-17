@@ -1,5 +1,5 @@
 $ 
-$     パス2のコア依存テンプレート（ARM64用）
+$       パス2のコア依存テンプレート（ARM64用）
 $ 
 
 $ 
@@ -31,7 +31,7 @@ $FOREACH prcid RANGE(1, TNUM_PRCID)$
 
 const FP _kernel_prc$prcid$_exch_table[TNUM_EXCH] = {$NL$
 $FOREACH excno RANGE(TMIN_EXCH, TMAX_EXCH)$
-    $number = excno|(prcid<<16)$
+	$number = excno|(prcid<<16)$
 	$IF LENGTH(EXC.EXCNO[number])$
 		$TAB$(FP)($EXC.EXCHDR[number]$),
 	$ELSE$

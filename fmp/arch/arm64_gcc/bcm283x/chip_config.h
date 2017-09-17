@@ -93,14 +93,14 @@
 Inline uint32_t
 x_prc_index(void)
 {
-	uint64_t mpidr;
-	uint32_t index;
+    uint64_t mpidr;
+    uint32_t index;
 
-	Asm("mrs %0, mpidr_el1":"=r"(mpidr));
+    Asm("mrs %0, mpidr_el1":"=r"(mpidr));
 
-	index = (uint32_t)mpidr & 0x000000ff;
+    index = (uint32_t)mpidr & 0x000000ff;
 
-	return index;
+    return index;
 }
 
 #ifdef USE_IPI_DIS_HANDER_BYPASS
@@ -120,7 +120,7 @@ extern void ext_ker_request(void);
 Inline void
 x_initialize_giant_lock(LOCK *p_giant_lock)
 {
-	*p_giant_lock = 0;
+    *p_giant_lock = 0;
 }
 
 /*
@@ -129,7 +129,7 @@ x_initialize_giant_lock(LOCK *p_giant_lock)
 Inline void
 x_initialize_tsk_lock(LOCK *p_tsk_lock)
 {
-	*p_tsk_lock = 0;
+    *p_tsk_lock = 0;
 }
 
 /*
@@ -138,7 +138,7 @@ x_initialize_tsk_lock(LOCK *p_tsk_lock)
 Inline void
 x_initialize_obj_lock(LOCK *p_obj_lock)
 {
-	*p_obj_lock = 0;
+    *p_obj_lock = 0;
 }
 
 /*
@@ -152,8 +152,8 @@ x_initialize_obj_lock(LOCK *p_obj_lock)
                                     && (INTNO_PRCID(intno) == 0U || INTNO_PRCID(intno) == prcid))
 #endif /* TMIN_INTNO == 0 */
 
-#define VALID_INTNO_DISINT(prcid, intno)	VALID_INTNO(prcid, intno)
-#define VALID_INTNO_CFGINT(prcid, intno)	VALID_INTNO(prcid, intno)
+#define VALID_INTNO_DISINT(prcid, intno)    VALID_INTNO(prcid, intno)
+#define VALID_INTNO_CFGINT(prcid, intno)    VALID_INTNO(prcid, intno)
 
 /*
  *  割込みハンドラの登録用テーブル（kernel_cfg.c）
@@ -179,9 +179,9 @@ Inline void
 x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 {
 #if TMIN_INTNO == 0
-	assert((INHNO_MASK(inhno) <= TMAX_INHNO));
+    assert((INHNO_MASK(inhno) <= TMAX_INHNO));
 #else /* !TMIN_INTNO == 0 */
-	assert(((TMIN_INHNO <= INHNO_MASK(inhno)) && (INHNO_MASK(inhno) <= TMAX_INHNO)));
+    assert(((TMIN_INHNO <= INHNO_MASK(inhno)) && (INHNO_MASK(inhno) <= TMAX_INHNO)));
 #endif /* TMIN_INTNO == 0 */
 }
 
@@ -225,8 +225,8 @@ x_define_inh(INHNO inhno, FP int_entry, uint_t affinity_mask)
 Inline uint8_t
 current_iipm(void)
 {
-	TPCB *p_tpcb = get_my_p_tpcb();
-	return(p_tpcb->iipm);
+    TPCB *p_tpcb = get_my_p_tpcb();
+    return(p_tpcb->iipm);
 }
 
 /*
@@ -235,8 +235,8 @@ current_iipm(void)
 Inline void
 set_iipm(uint8_t iipm)
 {
-	TPCB *p_tpcb = get_my_p_tpcb();
-	p_tpcb->iipm = iipm;
+    TPCB *p_tpcb = get_my_p_tpcb();
+    p_tpcb->iipm = iipm;
 }
 
 #endif /* TOPPERS_MACRO_ONLY */
@@ -249,7 +249,7 @@ set_iipm(uint8_t iipm)
 Inline void
 x_set_ipm(PRI intpri)
 {
-	set_iipm(INT_IPM(intpri));
+    set_iipm(INT_IPM(intpri));
 }
 
 #define t_set_ipm(intpri) x_set_ipm(intpri)
@@ -261,7 +261,7 @@ x_set_ipm(PRI intpri)
 Inline PRI
 x_get_ipm(void)
 {
-	return(EXT_IPM(current_iipm()));
+    return(EXT_IPM(current_iipm()));
 }
 
 #define t_get_ipm() x_get_ipm()
@@ -295,20 +295,20 @@ x_disable_int(INTNO intno)
 {
     uint32_t id = INTNO_MASK(intno);
 
-	if (my_cfgint_table[id] == 0){
-		return(false);
-	}
+    if (my_cfgint_table[id] == 0){
+        return(false);
+    }
 
     if ((0 <= id) && (id < 32)) {
-		// 0-31の割込みはNMIとしている
+        // 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
-		sil_wrw_mem((void *)(DISABLE_IRQ_B), (0x1 << (id - 32)));
+        sil_wrw_mem((uint32_t *)(DISABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {                   
-		sil_wrw_mem((void *)(DISABLE_IRQ_1), (0x1 << (id - 64)));
+        sil_wrw_mem((uint32_t *)(DISABLE_IRQ_1), (0x1 << (id - 64)));
     } else if ((96 <= id) && (id < 128)) {                  
-		sil_wrw_mem((void *)(DISABLE_IRQ_2), (0x1 << (id - 96)));
+        sil_wrw_mem((uint32_t *)(DISABLE_IRQ_2), (0x1 << (id - 96)));
     }
-	return(true);
+    return(true);
 }
 
 #define t_disable_int(intno)  x_disable_int(intno)
@@ -328,20 +328,20 @@ x_enable_int(INTNO intno)
 {
     uint32_t id = INTNO_MASK(intno);
 
-	if (my_cfgint_table[id] == 0){
-		return(false);
-	}
+    if (my_cfgint_table[id] == 0){
+        return(false);
+    }
 
     if ((0 <= id) && (id < 32)) {
-		// 0-31の割込みはNMIとしている
+        // 0-31の割込みはNMIとしている
     } else if ((32 <= id) && (id < 64)) {
-		sil_wrw_mem((void *)(ENABLE_IRQ_B), (0x1 << (id - 32)));
+        sil_wrw_mem((uint32_t *)(ENABLE_IRQ_B), (0x1 << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {
-		sil_wrw_mem((void *)(ENABLE_IRQ_1), (0x1 << (id - 64)));
+        sil_wrw_mem((uint32_t *)(ENABLE_IRQ_1), (0x1 << (id - 64)));
     } else if ((96 <= id) && (id < 128)) {
-		sil_wrw_mem((void *)(ENABLE_IRQ_2), (0x1 << (id - 96)));
+        sil_wrw_mem((uint32_t *)(ENABLE_IRQ_2), (0x1 << (id - 96)));
     }
-	return(true);
+    return(true);
 }
 
 #define t_enable_int(intno) x_enable_int(intno)
@@ -354,7 +354,7 @@ Inline void
 x_clear_int(INTNO intno)
 {
     // MEMO : 共通の割込み要求クリアの仕組みはない
-//	gicd_clear_pending(INTNO_MASK(intno));
+//    gicd_clear_pending(INTNO_MASK(intno));
 }
 
 #define t_clear_int(intno) x_clear_int(intno)
@@ -367,19 +367,20 @@ Inline bool_t
 x_probe_int(INTNO intno)
 {
     uint32_t id = INTNO_MASK(intno);
-	uintptr_t prc_id = x_prc_index();
+    uintptr_t prc_id = x_prc_index();
 
-	if (0 <= id && id < 32) {
-		return(sil_rew_mem((void *)(CORE0_IRQ_SRC + 4 * prc_id)) & (1U << (id - 0)));
+    if (0 <= id && id < 32) {
+        return(sil_rew_mem((uint32_t *)(CORE0_IRQ_SRC + 4 * prc_id)) &
+                (1U << (id - 0)));
     } else if ((32 <= id) && (id < 64)) {
-		return(sil_rew_mem((void *)(IRQ_PEND_B)) & (1U << (id - 32)));
+        return(sil_rew_mem((uint32_t *)(IRQ_PEND_B)) & (1U << (id - 32)));
     } else if ((64 <= id) && (id < 96)) {
-		return(sil_rew_mem((void *)(IRQ_PEND_1)) & (1U << (id - 64)));
+        return(sil_rew_mem((uint32_t *)(IRQ_PEND_1)) & (1U << (id - 64)));
     } else if ((96 <= id) && (id < 128)) {
-		return(sil_rew_mem((void *)(IRQ_PEND_2)) & (1U << (id - 96)));
-	}
+        return(sil_rew_mem((uint32_t *)(IRQ_PEND_2)) & (1U << (id - 96)));
+    }
 
-	return 0;
+    return 0;
 }
 
 #define t_probe_int(intno) x_probe_int(intno)

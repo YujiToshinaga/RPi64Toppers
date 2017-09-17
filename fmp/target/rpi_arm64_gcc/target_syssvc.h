@@ -62,7 +62,7 @@
  *  サポートするシリアルポートの数
  */
 #include "target_serial.h"
-#define TNUM_PORT   	TNUM_SIOP
+#define TNUM_PORT   TNUM_SIOP
 
 /*
  *  システムログの低レベル出力のための文字出力

@@ -134,20 +134,20 @@
 Inline void
 target_ipi_raise(uint_t prcid)
 {
-	switch(prcid) {
-	case 1:
-		sil_wrw_mem((void *)CORE0_MBOX0_WS, 0x00000001U);
-		break;
-	case 2:
-		sil_wrw_mem((void *)CORE1_MBOX1_WS, 0x00000001U);
-		break;
-	case 3:
-		sil_wrw_mem((void *)CORE2_MBOX2_WS, 0x00000001U);
-		break;
-	case 4:
-		sil_wrw_mem((void *)CORE3_MBOX3_WS, 0x00000001U);
-		break;
-	}
+    switch(prcid) {
+    case 1:
+        sil_wrw_mem((uint32_t *)CORE0_MBOX0_WS, 0x00000001U);
+        break;
+    case 2:
+        sil_wrw_mem((uint32_t *)CORE1_MBOX1_WS, 0x00000001U);
+        break;
+    case 3:
+        sil_wrw_mem((uint32_t *)CORE2_MBOX2_WS, 0x00000001U);
+        break;
+    case 4:
+        sil_wrw_mem((uint32_t *)CORE3_MBOX3_WS, 0x00000001U);
+        break;
+    }
 }
 
 /*
@@ -156,20 +156,20 @@ target_ipi_raise(uint_t prcid)
 Inline void
 target_ipi_clear(void)
 {
-	switch(x_prc_index() + 1) {
-	case 1:
-		sil_wrw_mem((void *)CORE0_MBOX0_RC, 0xffffffffU);
-		break;
-	case 2:
-		sil_wrw_mem((void *)CORE1_MBOX1_RC, 0xffffffffU);
-		break;
-	case 3:
-		sil_wrw_mem((void *)CORE2_MBOX2_RC, 0xffffffffU);
-		break;
-	case 4:
-		sil_wrw_mem((void *)CORE3_MBOX3_RC, 0xffffffffU);
-		break;
-	}
+    switch(x_prc_index() + 1) {
+    case 1:
+        sil_wrw_mem((uint32_t *)CORE0_MBOX0_RC, 0xffffffffU);
+        break;
+    case 2:
+        sil_wrw_mem((uint32_t *)CORE1_MBOX1_RC, 0xffffffffU);
+        break;
+    case 3:
+        sil_wrw_mem((uint32_t *)CORE2_MBOX2_RC, 0xffffffffU);
+        break;
+    case 4:
+        sil_wrw_mem((uint32_t *)CORE3_MBOX3_RC, 0xffffffffU);
+        break;
+    }
 }
 
 #ifdef USE_IPI_DIS_HANDER_BYPASS
