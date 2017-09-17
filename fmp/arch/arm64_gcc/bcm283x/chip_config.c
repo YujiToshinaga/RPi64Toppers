@@ -71,38 +71,38 @@ uint32_t _kernel_prc4_iipm_mask_table[(TNUM_INTPRI + 1) * 4];
 void
 chip_mprc_initialize(void)
 {
-	/*
-	 *  SILのスピンロック用変数の初期化
-	 */
-	TOPPERS_spn_var = 0U;
+    /*
+     *  SILのスピンロック用変数の初期化
+     */
+    TOPPERS_spn_var = 0U;
 
 #ifdef USE_IPI_DIS_HANDER_BYPASS
-	/*
-	 *  終了処理開始フラグの初期化
-	 */
-	ext_ker_reqflg = false;
+    /*
+     *  終了処理開始フラグの初期化
+     */
+    ext_ker_reqflg = false;
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
 
-	/*
-	 *  プロセッサ間割込みを初期化
-	 */
-	sil_wrw_mem((void *)CORE0_MICTL, 0x1U);
-	sil_wrw_mem((void *)CORE1_MICTL, 0x2U);
-	sil_wrw_mem((void *)CORE2_MICTL, 0x4U);
-	sil_wrw_mem((void *)CORE3_MICTL, 0x8U);
-	sil_wrw_mem((void *)CORE0_MBOX0_RC, 0xffffffffU);
-	sil_wrw_mem((void *)CORE1_MBOX1_RC, 0xffffffffU);
-	sil_wrw_mem((void *)CORE2_MBOX2_RC, 0xffffffffU);
-	sil_wrw_mem((void *)CORE3_MBOX3_RC, 0xffffffffU);
+    /*
+     *  プロセッサ間割込みを初期化
+     */
+    sil_wrw_mem((uint32_t *)CORE0_MICTL, 0x1U);
+    sil_wrw_mem((uint32_t *)CORE1_MICTL, 0x2U);
+    sil_wrw_mem((uint32_t *)CORE2_MICTL, 0x4U);
+    sil_wrw_mem((uint32_t *)CORE3_MICTL, 0x8U);
+    sil_wrw_mem((uint32_t *)CORE0_MBOX0_RC, 0xffffffffU);
+    sil_wrw_mem((uint32_t *)CORE1_MBOX1_RC, 0xffffffffU);
+    sil_wrw_mem((uint32_t *)CORE2_MBOX2_RC, 0xffffffffU);
+    sil_wrw_mem((uint32_t *)CORE3_MBOX3_RC, 0xffffffffU);
 
-	/*
-	 *  割込みを初期化
-	 */
-    sil_wrw_mem((void *)(DISABLE_IRQ_B), 0xffffffff);
-    sil_wrw_mem((void *)(DISABLE_IRQ_1), 0xffffffff);
-    sil_wrw_mem((void *)(DISABLE_IRQ_2), 0xffffffff);
+    /*
+     *  割込みを初期化
+     */
+    sil_wrw_mem((uint32_t *)(DISABLE_IRQ_B), 0xffffffff);
+    sil_wrw_mem((uint32_t *)(DISABLE_IRQ_1), 0xffffffff);
+    sil_wrw_mem((uint32_t *)(DISABLE_IRQ_2), 0xffffffff);
 
-	core_mprc_initialize();
+    core_mprc_initialize();
 }
 
 /*
@@ -111,62 +111,62 @@ chip_mprc_initialize(void)
 void
 chip_initialize(void)
 {
-	TPCB *p_tpcb = get_my_p_tpcb();
-	uint32_t index = x_prc_index();
+    TPCB *p_tpcb = get_my_p_tpcb();
+    uint32_t index = x_prc_index();
 
 #ifdef USE_THREAD_ID_PCB
-	/*
-	 *  Thread ID レジスタへのPCBへのポインタの設定
-	 */
-	TPIDR_EL1_WRITE((uint64_t)p_pcb_table[x_prc_index()]);
-	p_tpcb = get_my_p_tpcb();
+    /*
+     *  Thread ID レジスタへのPCBへのポインタの設定
+     */
+    TPIDR_EL1_WRITE((uint64_t)p_pcb_table[x_prc_index()]);
+    p_tpcb = get_my_p_tpcb();
 #endif /* USE_THREAD_ID_PCB */
 
-	/*
-	 *  ARM64依存の初期化
-	 */
-	core_initialize();
+    /*
+     *  ARM64依存の初期化
+     */
+    core_initialize();
 
-	/*
-	 *  タイマを有効化
-	 */
-    sil_wrw_mem((void *)((int64_t)CORE0_TICTL + x_prc_index() * 4),
+    /*
+     *  タイマを有効化
+     */
+    sil_wrw_mem((uint32_t *)((int64_t)CORE0_TICTL + x_prc_index() * 4),
             CORE_TICTL_CNTP_IRQ_BIT);
 
-	/*
-	 *  カーネル起動時は非タスクコンテキストとして動作させるため1に
-	 */
-	p_tpcb->excpt_nest_count = 1;
+    /*
+     *  カーネル起動時は非タスクコンテキストとして動作させるため1に
+     */
+    p_tpcb->excpt_nest_count = 1;
 
-	/*
-	 *  非タスクコンテキスト用のスタックの初期値
-	 */
-	p_tpcb->istkpt = istkpt_table[index];
+    /*
+     *  非タスクコンテキスト用のスタックの初期値
+     */
+    p_tpcb->istkpt = istkpt_table[index];
 
-	/*
-	 *  CPU例外ハンドラテーブルへのポインタの初期化
-	 */
-	p_tpcb->p_exch_tbl = p_exch_table[index];
+    /*
+     *  CPU例外ハンドラテーブルへのポインタの初期化
+     */
+    p_tpcb->p_exch_tbl = p_exch_table[index];
 
-	/*
-	 *  割込みハンドラテーブルへのポインタの初期化
-	 */
-	p_tpcb->p_inh_tbl = p_inh_table[index];
+    /*
+     *  割込みハンドラテーブルへのポインタの初期化
+     */
+    p_tpcb->p_inh_tbl = p_inh_table[index];
 
-	/*
-	 *  割込み優先度テーブルへのポインタの初期化
-	 */
-	p_tpcb->p_inh_iipm_tbl = p_inh_iipm_table[index];
+    /*
+     *  割込み優先度テーブルへのポインタの初期化
+     */
+    p_tpcb->p_inh_iipm_tbl = p_inh_iipm_table[index];
 
-	/*
-	 *  割込みマスクテーブルへのポインタの初期化
-	 */
-	p_tpcb->p_iipm_mask_tbl = p_iipm_mask_table[index];
+    /*
+     *  割込みマスクテーブルへのポインタの初期化
+     */
+    p_tpcb->p_iipm_mask_tbl = p_iipm_mask_table[index];
 
-	/*
-	 *  割込みマスクテーブルへのポインタの初期化
-	 */
-	p_tpcb->iipm = 0;
+    /*
+     *  割込みマスクテーブルへのポインタの初期化
+     */
+    p_tpcb->iipm = 0;
 }
 
 /*
@@ -175,10 +175,10 @@ chip_initialize(void)
 void
 chip_exit(void)
 {
-	/*
-	 *  ARM64依存の終了処理
-	 */
-	core_exit();
+    /*
+     *  ARM64依存の終了処理
+     */
+    core_exit();
 }
 
 /*
@@ -191,49 +191,49 @@ chip_exit(void)
 void
 x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
 {
-	assert(VALID_INTNO_CFGINT(ID_PRC(x_prc_index()), intno));
-	assert(TMIN_INTPRI <= intpri && intpri <= TMAX_INTPRI);
+    assert(VALID_INTNO_CFGINT(ID_PRC(x_prc_index()), intno));
+    assert(TMIN_INTPRI <= intpri && intpri <= TMAX_INTPRI);
 
-	/*
-	 *  割込み要求のマスク
-	 *
-	 *  割込みを受け付けたまま，レベルトリガ／エッジトリガの設定や，割
-	 *  込み優先度の設定を行うのは危険なため，割込み属性にかかわらず，
-	 *  一旦マスクする．
-	 */
-	x_disable_int(intno);
+    /*
+     *  割込み要求のマスク
+     *
+     *  割込みを受け付けたまま，レベルトリガ／エッジトリガの設定や，割
+     *  込み優先度の設定を行うのは危険なため，割込み属性にかかわらず，
+     *  一旦マスクする．
+     */
+    x_disable_int(intno);
 
-	// MEMO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
-//	/*
-//	 *  属性を設定
-//	 */
-//	if ((intatr & TA_EDGE) != 0U) {
-//		gicd_config(intno, true, true);
-//		x_clear_int(intno);
-//	} else {
-//		gicd_config(intno, false, true);
-//	}
+    // MEMO : レベルトリガ／エッジトリガの設定はハードウェアが未サポート
+//    /*
+//     *  属性を設定
+//     */
+//    if ((intatr & TA_EDGE) != 0U) {
+//        gicd_config(intno, true, true);
+//        x_clear_int(intno);
+//    } else {
+//        gicd_config(intno, false, true);
+//    }
 
-	// MEMO : 割込み優先度はハードウェアが未サポート
-	/*
-	 *  割込み優先度マスクの設定
-	 */
-//	gicd_set_priority(INTNO_MASK(intno), INT_IPM(intpri));    
+    // MEMO : 割込み優先度はハードウェアが未サポート
+    /*
+     *  割込み優先度マスクの設定
+     */
+//    gicd_set_priority(INTNO_MASK(intno), INT_IPM(intpri));    
 
-	// MEMO : ターゲットCPUの設定はハードウェアが未サポート
-//	/*
-//	 *  ターゲットCPUの設定（グローバル割込みのみ）
-//	 */
-//	if (INTNO_MASK(intno) >= TMIN_GLOBAL_INTNO) {
-//		gicd_set_target(INTNO_MASK(intno), x_gic_target(x_prc_index()));
-//	}
+    // MEMO : ターゲットCPUの設定はハードウェアが未サポート
+//    /*
+//     *  ターゲットCPUの設定（グローバル割込みのみ）
+//     */
+//    if (INTNO_MASK(intno) >= TMIN_GLOBAL_INTNO) {
+//        gicd_set_target(INTNO_MASK(intno), x_gic_target(x_prc_index()));
+//    }
 
-	/*
-	 *  割込みを許可
-	 */
-	if ((intatr & TA_ENAINT) != 0U) {
-		(void)x_enable_int(intno);
-	}
+    /*
+     *  割込みを許可
+     */
+    if ((intatr & TA_ENAINT) != 0U) {
+        x_enable_int(intno);
+    }
 }
 
 #ifndef OMIT_DEFAULT_INT_HANDLER
@@ -242,10 +242,10 @@ x_config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity_mask)
  */
 void
 default_int_handler(void){
-	ID prc_id = ID_PRC(x_prc_index());
-	
-	syslog_1(LOG_EMERG, "Processor %d : Unregistered Interrupt occurs.", prc_id);
-	target_exit();
+    ID prc_id = ID_PRC(x_prc_index());
+
+    syslog_1(LOG_EMERG, "Processor %d : Unregistered Interrupt occurs.", prc_id);
+    target_exit();
 }
 
 #endif /* OMIT_DEFAULT_INT_HANDLER */
@@ -257,20 +257,20 @@ default_int_handler(void){
 void
 ext_ker_request(void)
 {
-	ID prcid;
+    ID prcid;
 
-	/* すでに要求が出ていればリターン */
-	if (ext_ker_reqflg) {
-		return;
-	}
+    /* すでに要求が出ていればリターン */
+    if (ext_ker_reqflg) {
+        return;
+    }
 
-	ext_ker_reqflg = true;
+    ext_ker_reqflg = true;
 
-	for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
-		if (prcid != ID_PRC(x_prc_index())) {
-			target_ipi_raise(prcid);
-		}
-	}
+    for(prcid = 1; prcid <= TNUM_PRCID; prcid++){
+        if (prcid != ID_PRC(x_prc_index())) {
+            target_ipi_raise(prcid);
+        }
+    }
 }
 
 /*
@@ -279,7 +279,6 @@ ext_ker_request(void)
 void
 ipi_ext_handler(void)
 {
-	ext_ker();
+    ext_ker();
 }
 #endif /* USE_IPI_DIS_HANDER_BYPASS */
-

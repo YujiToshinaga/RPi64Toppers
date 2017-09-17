@@ -110,28 +110,28 @@ Inline CLOCK
 target_timer_get_current(void)
 {
     // TODO : tickタイマハンドラ内でget_timを行うとバグるらしい
-	uint64_t pct;
-	int64_t cyc;
-	int64_t cnt;
+    uint64_t pct;
+    int64_t cyc;
+    int64_t cnt;
 
-	CNTPCT_EL0_READ(pct);
-	cyc = (int64_t)TO_CLOCK(TIC_NUME, TIC_DENO);
+    CNTPCT_EL0_READ(pct);
+    cyc = (int64_t)TO_CLOCK(TIC_NUME, TIC_DENO);
 
-	cnt = (int64_t)(pct - (timer_cval - cyc));
+    cnt = (int64_t)(pct - (timer_cval - cyc));
 
-	/*
+    /*
      *  ティック割込みを強制的に発生させたり，
      *  ティック割込みが抜けたりした場合の補正．
-	 *  この補正が行われるときは，システムが破綻しているときである．
-	 */
-	while (cnt >= cyc) {
-		cnt = cnt - cyc;
-	}
-	while (cnt < 0) {
-		cnt = cnt + cyc;
-	}
+     *  この補正が行われるときは，システムが破綻しているときである．
+     */
+    while (cnt >= cyc) {
+        cnt = cnt - cyc;
+    }
+    while (cnt < 0) {
+        cnt = cnt + cyc;
+    }
 
-	return (CLOCK)cnt;
+    return (CLOCK)cnt;
 }
 
 /*
@@ -142,22 +142,22 @@ target_timer_probe_int(void)
 {
     // TODO : tickタイマハンドラ内でget_timを行うとバグるらしい
 //#if 0
-	uint32_t ctl;
+    uint32_t ctl;
 
 //#if defined(TOPPERS_SAFEG_SECURE)
-//	CNTPS_CTL_EL1_READ(ctl);
+//    CNTPS_CTL_EL1_READ(ctl);
 //#else
-	CNTP_CTL_EL0_READ(ctl);
+    CNTP_CTL_EL0_READ(ctl);
 //#endif
 
-	return ((ctl & CNTP_CTL_ISTATUS_BIT) == CNTP_CTL_ISTATUS_BIT);
+    return ((ctl & CNTP_CTL_ISTATUS_BIT) == CNTP_CTL_ISTATUS_BIT);
 //#else
-//	/*
-//	 * Generic Timerはタイムアウト後はCNTP_CVALを更新するまで，CNTP_TVALの値は0のまま
-//	 * であるため， target_timer_probe_int()がtrueを返すとget_utm()に不整合が発生するため，
-//	 * 常にfalseを返すこととする． 
-//	 */
-//	return false;
+//    /*
+//     * Generic Timerはタイムアウト後はCNTP_CVALを更新するまで，CNTP_TVALの値は0のまま
+//     * であるため， target_timer_probe_int()がtrueを返すとget_utm()に不整合が発生するため，
+//     * 常にfalseを返すこととする． 
+//     */
+//    return false;
 //#endif /* 0 */
 }
 

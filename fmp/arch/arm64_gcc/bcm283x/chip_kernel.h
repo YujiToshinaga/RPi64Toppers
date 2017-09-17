@@ -61,16 +61,16 @@
  *  割込み優先度に関する設定
  */
 //#if defined(TOPPERS_SAFEG_SECURE)
-//#define TMIN_INTPRI (-(GIC_PRI_LEVEL - 1))	/* 割込み優先度の最小値（最高値）*/
-//#define TMAX_INTPRI (-(GIC_PRI_LEVEL >> 1))	/* 割込み優先度の最大値（最低値）*/
+//#define TMIN_INTPRI (-(GIC_PRI_LEVEL - 1))  /* 割込み優先度の最小値（最高値）*/
+//#define TMAX_INTPRI (-(GIC_PRI_LEVEL >> 1)) /* 割込み優先度の最大値（最低値）*/
 //#elif defined(TOPPERS_SAFEG_NONSECURE)
 //#define TMIN_INTPRI (-((GIC_PRI_LEVEL >> 1) - 1))
-//											/* 割込み優先度の最小値（最高値）*/
-//#define TMAX_INTPRI (-1)					/* 割込み優先度の最大値（最低値）*/
+//                                            /* 割込み優先度の最小値（最高値）*/
+//#define TMAX_INTPRI (-1)                    /* 割込み優先度の最大値（最低値）*/
 //#else /* defined(TOPPERS_SAFEG_SECURE) */
 #define TMIN_INTPRI (-(PRI_LEVEL - 1))
-											/* 割込み優先度の最小値（最高値）*/
-#define TMAX_INTPRI (-1)					/* 割込み優先度の最大値（最低値）*/
+                                            /* 割込み優先度の最小値（最高値）*/
+#define TMAX_INTPRI (-1)                    /* 割込み優先度の最大値（最低値）*/
 //#endif /* defined(TOPPERS_SAFEG_SECURE) */
 
 #endif /* TOPPERS_CHIP_KERNEL_H */

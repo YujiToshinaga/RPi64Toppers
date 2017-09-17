@@ -83,34 +83,34 @@
 Inline void
 x_acquire_lock(LOCK *p_lock)
 {
-	int		locked;
+    int locked;
 
-	while (true) {
-		Asm("   mov   w2, #0x01    \n"
-			"\t ldxr  w1, [%1]     \n"
-			"\t cmp   w1, #0x00    \n"
-			"\t b.eq  1f           \n"
-			"\t mov   x3, %2       \n" /* 割込みの許可 */
-			"\t msr   daif, x3     \n"
-			"\t wfe                \n"
-			"\t mov   x3, %3       \n" /* 割込みの禁止 */
-			"\t msr   daif, x3     \n"
-			"\t b     2f           \n"
-			"\t 1:                 \n"
-			"\t stxr  w1, w2, [%1] \n"
-			"\t 2:                 \n"
-			"\t mov   %0, x1       \n"
-			:"=r"(locked)
-			:"r"(p_lock), "I"(DAIF_ALWAYS_SET), "I"(DAIF_CPULOCK|DAIF_ALWAYS_SET)
-			:"x1", "x2", "x3", "cc");
+    while (true) {
+        Asm("   mov   w2, #0x01    \n"
+            "\t ldxr  w1, [%1]     \n"
+            "\t cmp   w1, #0x00    \n"
+            "\t b.eq  1f           \n"
+            "\t mov   x3, %2       \n" /* 割込みの許可 */
+            "\t msr   daif, x3     \n"
+            "\t wfe                \n"
+            "\t mov   x3, %3       \n" /* 割込みの禁止 */
+            "\t msr   daif, x3     \n"
+            "\t b     2f           \n"
+            "\t 1:                 \n"
+            "\t stxr  w1, w2, [%1] \n"
+            "\t 2:                 \n"
+            "\t mov   %0, x1       \n"
+            :"=r"(locked)
+            :"r"(p_lock), "I"(DAIF_ALWAYS_SET), "I"(DAIF_CPULOCK|DAIF_ALWAYS_SET)
+            :"x1", "x2", "x3", "cc");
 
-		if (locked == 0) {
-			/* ロック取得成功 */
-			data_memory_barrier();
-			Asm("":::"memory");
-			return;
-		}
-	}
+        if (locked == 0) {
+            /* ロック取得成功 */
+            data_memory_barrier();
+            Asm("":::"memory");
+            return;
+        }
+    }
 }
 
 #define t_acquire_lock(p_lock) x_acquire_lock(p_lock)
@@ -124,46 +124,46 @@ x_acquire_lock(LOCK *p_lock)
 Inline bool_t
 x_acquire_nested_lock(LOCK *p_lock)
 {
-	PCB		*p_pcb;
-	int		locked;
+    PCB *p_pcb;
+    int locked;
 
-	while (true) {
-		Asm("   mov   w2, #0x01    \n"
-			"\t ldxr  w1, [%1]     \n"
-			"\t cmp   w1, #0x00    \n"
-			"\t b.eq  1f           \n"
-			"\t mov   x3, %2       \n" /* 割込みの許可 */
-			"\t msr   daif, x3     \n"
-			"\t wfe                \n"
-			"\t mov   x3, %3       \n" /* 割込みの禁止 */
-			"\t msr   daif, x3     \n"
-			"\t b     2f           \n"
-			"\t 1:                 \n"
-			"\t stxr  w1, w2, [%1] \n"
-			"\t 2:                 \n"
-			"\t mov   %0, x1       \n"
-			:"=r"(locked)
-			:"r"(p_lock), "I"(DAIF_ALWAYS_SET), "I"(DAIF_CPULOCK|DAIF_ALWAYS_SET)
-			:"x1", "x2", "x3", "cc");
+    while (true) {
+        Asm("   mov   w2, #0x01    \n"
+            "\t ldxr  w1, [%1]     \n"
+            "\t cmp   w1, #0x00    \n"
+            "\t b.eq  1f           \n"
+            "\t mov   x3, %2       \n" /* 割込みの許可 */
+            "\t msr   daif, x3     \n"
+            "\t wfe                \n"
+            "\t mov   x3, %3       \n" /* 割込みの禁止 */
+            "\t msr   daif, x3     \n"
+            "\t b     2f           \n"
+            "\t 1:                 \n"
+            "\t stxr  w1, w2, [%1] \n"
+            "\t 2:                 \n"
+            "\t mov   %0, x1       \n"
+            :"=r"(locked)
+            :"r"(p_lock), "I"(DAIF_ALWAYS_SET), "I"(DAIF_CPULOCK|DAIF_ALWAYS_SET)
+            :"x1", "x2", "x3", "cc");
 
-		if (locked == 0) {
-			/* ロック取得成功 */
-			data_memory_barrier();
-			Asm("":::"memory");
-			return(false);
-		}
+        if (locked == 0) {
+            /* ロック取得成功 */
+            data_memory_barrier();
+            Asm("":::"memory");
+            return(false);
+        }
 
-		/*
-		 * マイグレーションする可能性があるのでここで毎回取得
-		 * 非タスクコンテキストの場合，マイグレーションしないため，
-		 * while前に実行してもよいが，1回でロックがとれた場合，
-		 * 効率が悪いので，ここで取得する．
-		 */
-		p_pcb = get_my_p_pcb();
-		if (p_pcb->p_firstlock == NULL) {
-			return(true);
-		}
-	}
+        /*
+         * マイグレーションする可能性があるのでここで毎回取得
+         * 非タスクコンテキストの場合，マイグレーションしないため，
+         * while前に実行してもよいが，1回でロックがとれた場合，
+         * 効率が悪いので，ここで取得する．
+         */
+        p_pcb = get_my_p_pcb();
+        if (p_pcb->p_firstlock == NULL) {
+            return(true);
+        }
+    }
 }
 
 #define t_acquire_nested_lock(p_lock) x_acquire_nested_lock(p_lock)
@@ -177,11 +177,11 @@ x_acquire_nested_lock(LOCK *p_lock)
 Inline void
 x_release_lock(LOCK *p_lock)
 {
-	Asm("":::"memory");
-	data_memory_barrier();
-	*p_lock = 0;
-	data_sync_barrier();
-	Asm("sev");
+    Asm("":::"memory");
+    data_memory_barrier();
+    *p_lock = 0;
+    data_sync_barrier();
+    Asm("sev");
 }
 
 /*
@@ -190,30 +190,30 @@ x_release_lock(LOCK *p_lock)
 Inline void
 x_acquire_lock_without_preemption(LOCK *p_lock)
 {
-	int		locked;
+    int locked;
 
-	while (true) {
-		Asm("   mov   w2, #0x01    \n"
-			"\t ldxr  w1, [%1]     \n"
-			"\t cmp   w1, #0x00    \n"
-			"\t b.eq  1f           \n"
-			"\t wfe                \n"
-			"\t b     2f           \n"
-			"\t 1:                 \n"
-			"\t stxr  w1, w2, [%1] \n"
-			"\t 2:                 \n"
-			"\t mov   %0, x1       \n"
-			:"=r"(locked)
-			:"r"(p_lock)
-			:"x1", "x2", "cc");
+    while (true) {
+        Asm("   mov   w2, #0x01    \n"
+            "\t ldxr  w1, [%1]     \n"
+            "\t cmp   w1, #0x00    \n"
+            "\t b.eq  1f           \n"
+            "\t wfe                \n"
+            "\t b     2f           \n"
+            "\t 1:                 \n"
+            "\t stxr  w1, w2, [%1] \n"
+            "\t 2:                 \n"
+            "\t mov   %0, x1       \n"
+            :"=r"(locked)
+            :"r"(p_lock)
+            :"x1", "x2", "cc");
 
-		if (locked == 0) {
-			/* ロック取得成功 */
-			data_memory_barrier();
-			Asm("":::"memory");
-			return;
-		}
-	}
+        if (locked == 0) {
+            /* ロック取得成功 */
+            data_memory_barrier();
+            Asm("":::"memory");
+            return;
+        }
+    }
 }
 
 /*
@@ -231,7 +231,7 @@ typedef uint32_t SPNLOCK;
 Inline void
 x_initialize_spin(ID spnid, SPNLOCK *p_spn_lock)
 {
-	*p_spn_lock = 0;
+    *p_spn_lock = 0;
 }
 
 /*
@@ -240,7 +240,7 @@ x_initialize_spin(ID spnid, SPNLOCK *p_spn_lock)
 Inline void
 x_lock_spin(SPNLOCK *p_spn_lock)
 {
-	x_acquire_lock(p_spn_lock);
+    x_acquire_lock(p_spn_lock);
 }
 
 #define t_lock_spin(p_spn_lock)  x_lock_spin(p_spn_lock)
@@ -252,27 +252,27 @@ x_lock_spin(SPNLOCK *p_spn_lock)
 Inline bool_t
 x_try_lock_spin(SPNLOCK *p_spn_lock)
 {
-	int		locked;
+    int locked;
 
-	Asm("   mov   w2, #0x01    \n"
-		"\t ldxr  w1, [%1]     \n"
-		"\t cmp   w1, #0x00    \n"
-		"\t b.ne  1f           \n"
-		"\t stxr  w1, w2, [%1] \n"
-		"\t 1:                 \n"
-		"\t mov   %0, x1       \n"
-		:"=r"(locked)
-		:"r"(p_spn_lock)
-		:"x1", "x2", "cc");
+    Asm("   mov   w2, #0x01    \n"
+        "\t ldxr  w1, [%1]     \n"
+        "\t cmp   w1, #0x00    \n"
+        "\t b.ne  1f           \n"
+        "\t stxr  w1, w2, [%1] \n"
+        "\t 1:                 \n"
+        "\t mov   %0, x1       \n"
+        :"=r"(locked)
+        :"r"(p_spn_lock)
+        :"x1", "x2", "cc");
 
-	if (locked == 0) {
-		/* 成功した場合 */
-		data_memory_barrier();
-		Asm("":::"memory");
-		return(false);
-	}
+    if (locked == 0) {
+        /* 成功した場合 */
+        data_memory_barrier();
+        Asm("":::"memory");
+        return(false);
+    }
 
-	return(true);
+    return(true);
 }
 
 /*
@@ -281,7 +281,7 @@ x_try_lock_spin(SPNLOCK *p_spn_lock)
 Inline void
 x_unlock_spin(SPNLOCK *p_spn_lock)
 {
-	x_release_lock(p_spn_lock);
+    x_release_lock(p_spn_lock);
 }
 
 #endif /* TOPPERS_MACRO_ONLY */

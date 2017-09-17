@@ -65,7 +65,7 @@ uint64_t timer_cval;
 void
 target_timer_initialize(intptr_t exinf)
 {
-	CLOCK cyc;
+    CLOCK cyc;
 
     /*
      *  タイマの停止
@@ -79,7 +79,7 @@ target_timer_initialize(intptr_t exinf)
     /*
      *  1ティックのクロック数
      */
-	cyc = TO_CLOCK(TIC_NUME, TIC_DENO);
+    cyc = TO_CLOCK(TIC_NUME, TIC_DENO);
 
     /*
      *  タイマの開始
@@ -96,9 +96,9 @@ target_timer_initialize(intptr_t exinf)
      *  タイマの設定値
      */
 //#if defined(TOPPERS_SAFEG_SECURE)
-//	CNTPS_CVAL_EL1_READ(timer_cval);
+//    CNTPS_CVAL_EL1_READ(timer_cval);
 //#else
-	CNTP_CVAL_EL0_READ(timer_cval);
+    CNTP_CVAL_EL0_READ(timer_cval);
 //#endif
 }
 
@@ -124,8 +124,8 @@ target_timer_terminate(intptr_t exinf)
 void
 target_timer_handler(void)
 {
-	ID prcid;
-	CLOCK cyc;
+    ID prcid;
+    CLOCK cyc;
     uint64_t pct;
 
     /*
@@ -140,35 +140,35 @@ target_timer_handler(void)
     /*
      *  1ティックのクロック数
      */
-	cyc = TO_CLOCK(TIC_NUME, TIC_DENO);
+    cyc = TO_CLOCK(TIC_NUME, TIC_DENO);
 
     /*
      *  タイマの設定値
      */
-	timer_cval = timer_cval + (uint64_t)cyc;
+    timer_cval = timer_cval + (uint64_t)cyc;
 
 //#if 0
     /*
      *  ティック割込みを強制的に発生させた場合の補正．
      *  及び，ティック割込みが抜けた場合の補正．
-	 *  この補正が行われるときは，システムが破綻しているときである．
+     *  この補正が行われるときは，システムが破綻しているときである．
      */
-	CNTPCT_EL0_READ(pct);
-	while (timer_cval > pct + cyc) {
-		timer_cval = timer_cval - (uint64_t)cyc;
-	}
-	while (timer_cval < pct) {
-		timer_cval = timer_cval + (uint64_t)cyc;
-	}
+    CNTPCT_EL0_READ(pct);
+    while (timer_cval > pct + cyc) {
+        timer_cval = timer_cval - (uint64_t)cyc;
+    }
+    while (timer_cval < pct) {
+        timer_cval = timer_cval + (uint64_t)cyc;
+    }
 //#endif
 
     /*
      *  タイマの設定
      */
 //#if defined(TOPPERS_SAFEG_SECURE)
-//	CNTPS_CVAL_EL1_WRITE((uint64_t)timer_cval);
+//    CNTPS_CVAL_EL1_WRITE((uint64_t)timer_cval);
 //#else
-	CNTP_CVAL_EL0_WRITE((uint64_t)timer_cval);
+    CNTP_CVAL_EL0_WRITE((uint64_t)timer_cval);
 //#endif
 
     /*
@@ -180,8 +180,8 @@ target_timer_handler(void)
     CNTP_CTL_EL0_WRITE((uint32_t)CNTP_CTL_ENABLE_BIT);
 //#endif
 
-	iget_pid(&prcid);
-	i_begin_int((0x10000 * prcid)|INTNO_TIMER);
-	signal_time();				/* タイムティックの供給 */
-	i_end_int((0x10000 * prcid)|INTNO_TIMER);
+    iget_pid(&prcid);
+    i_begin_int((0x10000 * prcid)|INTNO_TIMER);
+    signal_time();              /* タイムティックの供給 */
+    i_end_int((0x10000 * prcid)|INTNO_TIMER);
 }
