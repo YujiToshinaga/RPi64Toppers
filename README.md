@@ -25,7 +25,7 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  シリアルコンソールで通信するために使用する  
  TTL-232R-3V3を使用した
 
- - PC  
+ - PC（Windows / Linuxどちらでも可）  
  ビルド，および動作に使用する
 
 ## 開発環境の構築
@@ -35,17 +35,16 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  https://www.linaro.org/downloads/  
  開発では以下Versionのものを使用した  
  gcc-linaro-6.3.1-2017.02-i686_aarch64-elf  
- DownLoadして適当な場所に解凍したら
+ ダウンロードして適当な場所に解凍したら
  ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin/aarch64-elf-gcc```
  にpathに通す
 
  - コンフィギュレータ  
  以下からコンフィギュレータを入手する  
  https://www.toppers.jp/cfg-download.html  
- コンフィギュレータは，解凍して入っているcfgというバイナリである．
 
  - ターミナルアプリ  
- シリアルコンソールで通信するためにTera Termなどをインストールしておく
+ シリアルコンソールで通信するためにTera Term，GTKTermなどをインストールしておく
 
  - その他ツール  
  おそらく以下パッケージが必要となる  
