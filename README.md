@@ -23,30 +23,32 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  
  - USBシリアル変換ケーブル  
  シリアルコンソールで通信するために使用する  
- TTL-232R-3V3を使用した  
+ TTL-232R-3V3を使用した
 
- - Windows PC  
- Cygwinを用いてビルドを行う  
- 説明は省くがLinux PCでも可
+ - PC（Windows / Linuxどちらでも可）  
+ ビルド，および動作に使用する
 
 ## 開発環境の構築
-
- - Cygwin  
- WindwosPCにCygwinをインストールする  
- おそらく以下パッケージが必要  
- make, perl, git, gcc-core, gcc-g++  
 
  - コンパイラ  
  以下からフリーのARMv8 AArch64用コンパイラを入手する  
  https://www.linaro.org/downloads/  
- 開発ではWindows用の以下Versionのものを使用した  
- gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf  
- DownLoadして適当な場所に解凍したら
- ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf/bin/aarch64-elf-gcc```
+ 開発では以下Versionのものを使用した  
+ gcc-linaro-6.3.1-2017.02-i686_aarch64-elf  
+ ダウンロードして適当な場所に解凍したら
+ ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin```
  にpathに通す
 
+ - コンフィギュレータ  
+ 以下からコンフィギュレータを入手する  
+ https://www.toppers.jp/cfg-download.html  
+
  - ターミナルアプリ  
- シリアルコンソールで通信するためにTera Termなどをインストールしておく
+ シリアルコンソールで通信するためにTera Term，GTKTermなどをインストールしておく
+
+ - その他ツール  
+ おそらく以下パッケージが必要となる  
+ make, perl, git, gcc-core, gcc-g++
 
 ## ビルド
 
@@ -54,6 +56,9 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
 ```
 git clone https://github.com/YujiToshinaga/RPi64Toppers.git
 cd RPi64Toppers/fmp
+mkdir -p cfg/cfg
+mv <コンフィギュレータを解凍したディレクトリ>/cfg cfg/cfg
+chmod 755 cfg/cfg/cfg
 mkdir build
 cd build
 perl ../configure -T rpi_arm64_gcc
