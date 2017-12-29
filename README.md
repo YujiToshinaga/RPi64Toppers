@@ -25,35 +25,45 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  シリアルコンソールで通信するために使用する  
  TTL-232R-3V3を使用した  
 
- - Windows PC  
- Cygwinを用いてビルドを行う  
- 説明は省くがLinux PCでも可
+ - PC
+ ビルド，および動作に使用する
 
 ## 開発環境の構築
-
- - Cygwin  
- WindwosPCにCygwinをインストールする  
- おそらく以下パッケージが必要  
- make, perl, git, gcc-core, gcc-g++  
 
  - コンパイラ  
  以下からフリーのARMv8 AArch64用コンパイラを入手する  
  https://www.linaro.org/downloads/  
- 開発ではWindows用の以下Versionのものを使用した  
- gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf  
+ 開発では以下Versionのものを使用した  
+ gcc-linaro-6.3.1-2017.02-i686_aarch64-elf  
  DownLoadして適当な場所に解凍したら
- ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686-mingw32_aarch64-elf/bin/aarch64-elf-gcc```
+ ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin/aarch64-elf-gcc```
  にpathに通す
+
+ - コンフィギュレータ
+ 以下からコンフィギュレータを入手する  
+ https://www.toppers.jp/cfg-download.html  
+ コンフィギュレータは，解凍して入っているcfgというバイナリである．
 
  - ターミナルアプリ  
  シリアルコンソールで通信するためにTera Termなどをインストールしておく
 
+ - その他ツール
+ おそらく以下パッケージが必要となる  
+ make, perl, git, gcc-core, gcc-g++  
+
 ## ビルド
+
+次に，コンフィギュレータと呼ばれる，TOPPERSカーネル用のソフトウェア部品を生成するためのツールを以下からダウンロードします．最新の32bit Linux用バイナリを使用します．
+https://www.toppers.jp/cfg-download.html
+　コンフィギュレータは，解凍して入っているcfgというバイナリをRpi64Toppers/fmp/cfg/cfg以下に置きます（まぎらわしいですが，Rpi64Toppers/fmp/cfg/cfg/cfgというパスになります）．
 
 このリポジトリを取得してfmp.binをビルドする
 ```
 git clone https://github.com/YujiToshinaga/RPi64Toppers.git
 cd RPi64Toppers/fmp
+mkdir -p cfg/cfg
+mv <コンフィギュレータを解凍したディレクトリ>/cfg cfg/cfg
+chmod 755 cfg/cfg/cfg
 mkdir build
 cd build
 perl ../configure -T rpi_arm64_gcc
