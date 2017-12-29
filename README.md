@@ -36,7 +36,7 @@ Raspberry Pi 64bitモード向けTOPPERSリアルタイムカーネル
  開発では以下Versionのものを使用した  
  gcc-linaro-6.3.1-2017.02-i686_aarch64-elf  
  ダウンロードして適当な場所に解凍したら
- ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin/aarch64-elf-gcc```
+ ```<解凍したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin```
  にpathに通す
 
  - コンフィギュレータ  
