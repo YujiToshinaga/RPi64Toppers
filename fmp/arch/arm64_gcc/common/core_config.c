@@ -104,6 +104,7 @@ core_initialize(void)
     CPUECTLR_EL1_READ(tmp);
     tmp |= CPUECTLR_SMPEN_BIT;
     CPUECTLR_EL1_WRITE(tmp);
+    inst_sync_barrier();
 
     /*
      *  MMUを有効に
