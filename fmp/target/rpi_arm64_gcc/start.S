@@ -58,7 +58,7 @@
  *  startのデバッグ
  */
 //#define DEBUG_CORE0
-#define DEBUG_JTAG
+//#define DEBUG_JTAG
 //#define DEBUG_MU
 //#define DEBUG_STUB
 
