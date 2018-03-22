@@ -1,0 +1,4 @@
+kernel=baremetal.bin
+arm_control=0x200
+kernel_old=1
+disable_commandline_tags=1
