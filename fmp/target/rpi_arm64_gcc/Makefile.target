@@ -86,14 +86,24 @@ LDSCRIPT = $(TARGETDIR)/rpi_arm64.ld
 #  rpi_arm64.ldに「STARTUP(start.o)」を記述したため，スタートアップモジュー
 #  ルの名前をHIDDEN_OBJSに定義する．
 #
-HIDDEN_OBJS = start.o
+#HIDDEN_OBJS = start.o
+#
+#$(HIDDEN_OBJS): %.o: %.S
+#	$(CC) -c $(CFLAGS) $(KERNEL_CFLAGS) $<
+#
+#$(HIDDEN_OBJS:.o=.d): %.d: %.S
+#	@$(PERL) $(SRCDIR)/utils/makedep -C $(CC) \
+#		-O "$(CFLAGS) $(KERNEL_CFLAGS)" $< >> Makefile.depend
 
-$(HIDDEN_OBJS): %.o: %.S
-	$(CC) -c $(CFLAGS) $(KERNEL_CFLAGS) $<
+HIDDEN_ASMOBJS = start.o
+HIDDEN_COBJS =
+HIDDEN_ASMOBJS := $(addprefix $(OBJDIR)/, $(HIDDEN_ASMOBJS))
+HIDDEN_COBJS   := $(addprefix $(OBJDIR)/, $(HIDDEN_COBJS))
+HIDDEN_OBJS = $(HIDDEN_ASMOBJS) $(HIDDEN_COBJS)
 
-$(HIDDEN_OBJS:.o=.d): %.d: %.S
-	@$(PERL) $(SRCDIR)/utils/makedep -C $(CC) \
-		-O "$(CFLAGS) $(KERNEL_CFLAGS)" $< >> Makefile.depend
+$(HIDDEN_ASMOBJS): $(OBJDIR)/%.o: %.S
+	${MKOBJDIR_P}
+	$(CC) -o $@ -c $(CFLAGS) $(KERNEL_CFLAGS) $<
 
 #
 #  依存関係の定義

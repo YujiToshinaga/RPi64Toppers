@@ -81,7 +81,9 @@ core_initialize(void)
     /*
      *  アラインメントチェックの設定
      */
-    SCTLR_EL1_WRITE(SCTLR_SA_BIT | SCTLR_A_BIT);
+    SCTLR_EL1_READ(tmp);
+    tmp |= (SCTLR_SA_BIT | SCTLR_A_BIT);
+    SCTLR_EL1_WRITE(tmp);
     inst_sync_barrier();
 
     /*
@@ -102,6 +104,7 @@ core_initialize(void)
     CPUECTLR_EL1_READ(tmp);
     tmp |= CPUECTLR_SMPEN_BIT;
     CPUECTLR_EL1_WRITE(tmp);
+    inst_sync_barrier();
 
     /*
      *  MMUを有効に
