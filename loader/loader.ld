@@ -11,12 +11,20 @@ MEMORY {
 
 SECTIONS
 {
-    . = LOADER_ADDR;
+    . = START_ADDR;
 
     .startup . : {
         __STARTUP_START__ = .;
         startup.o(.startup)
         __STARTUP_END__ = .;
+    } > RAM
+
+    . = LOADER_ADDR;
+
+    .loader_startup . : {
+        __LOADER_STARTUP_START__ = .;
+        startup.o(.loader_startup)
+        __LOADER_STARTUP_END__ = .;
     } > RAM
 
     .loader_text . : {

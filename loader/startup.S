@@ -14,6 +14,12 @@
     .section .startup, "ax"
     .type _entry, %function
 _entry:
+    b     _loader_entry
+
+    .global	_loader_entry
+    .section .loader_startup, "ax"
+    .type _loader_entry, %function
+_loader_entry:
 
 #ifdef DEBUG_CORE0
     /*

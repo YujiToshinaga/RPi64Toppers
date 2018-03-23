@@ -12,12 +12,13 @@
 #define STACK_CORE_SIZE (STACK_SIZE / 4)
 #define STACK_ALIGN     4                   // 16byte align
 
-#define LOADER_ADDR         0x00000000
+#define START_ADDR          0x00000000
+#define LOADER_ADDR         0x00100000
 #define LOADER_SIZE         0x00080000          // 512KB
-#define LOADER_CACHED_ADDR  0x00080000
-#define LOADER_CACHED_SIZE  0x00080000          // 512KB
-#define LOAD_TMP_ADDR       0x00100000
-#define LOAD_ADDR           0x00200000
+#define LOADER_CACHED_ADDR  0x00180000
+#define LOADER_CACHED_SIZE  0x00080000          // 1MB
+#define LOAD_ADDR           0x00000000
+#define LOAD_TMP_ADDR       0x00200000
 #define LOAD_SIZE           0x00100000          // 1MB
 
 #define UART_BAUDRATE   115200

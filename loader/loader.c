@@ -1479,6 +1479,12 @@ int loader(void)
 
     mmu_mmap_init();
 
+    mm.pa   = LOAD_ADDR;
+    mm.va   = mm.pa;
+    mm.size = LOAD_SIZE;
+    mm.attr = MEM_ATTR_SO;
+    mm.ns   = MEM_NS_NONSECURE;
+    mmu_mmap_add(&mm);
     mm.pa   = LOADER_ADDR;
     mm.va   = mm.pa;
     mm.size = LOADER_SIZE;
@@ -1495,12 +1501,6 @@ int loader(void)
     mm.va   = mm.pa;
     mm.size = LOAD_SIZE;
     mm.attr = MEM_ATTR_NML_C;
-    mm.ns   = MEM_NS_NONSECURE;
-    mmu_mmap_add(&mm);
-    mm.pa   = LOAD_ADDR;
-    mm.va   = mm.pa;
-    mm.size = LOAD_SIZE;
-    mm.attr = MEM_ATTR_SO;
     mm.ns   = MEM_NS_NONSECURE;
     mmu_mmap_add(&mm);
     mm.pa   = IO0_ADDR;
