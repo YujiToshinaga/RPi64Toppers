@@ -4,7 +4,7 @@
 # Variable
 #---------------------------------------
 # Target
-TARGET			= baremetal
+TARGET			= loader
 
 TARGET_AXF		= $(TARGET).axf
 TARGET_MAP		= $(TARGET).map
@@ -14,23 +14,14 @@ TARGET_BIN		= $(TARGET).bin
 TARGET_SREC		= $(TARGET).srec
 
 # Source
-LDS				= baremetal.ld
+LDS				= loader.ld
 
 ASMS			=
 ASMS			+= startup.S
-ASMS			+= stack.S
-ASMS			+= loader_stack.S
 
 SRCS			=
-SRCS			+= main.c
-SRCS			+= aarch64.c
-SRCS			+= bcm283x.c
-SRCS			+= printk.c
-SRCS			+= serial.c
-SRCS			+= gpio.c
-SRCS			+= timer.c
-SRCS			+= xmodem.c
 SRCS			+= loader.c
+SRCS			+= loader_cached.c
 
 LDS_GEN			= $(LDS).gen
 DPNS			= $(ASMS:.S=.d) $(SRCS:.c=.d)
@@ -155,4 +146,3 @@ $(TARGET_SREC): $(TARGET_AXF)
 
 # Include
 -include $(DPNS)
-

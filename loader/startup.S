@@ -1,7 +1,5 @@
-#include "baremetal.h"
 #define MACRO_ONLY
-#include "aarch64.h"
-#include "bcm283x.h"
+#include "loader.h"
 
 //#define DEBUG_CORE0
 //#define DEBUG_JTAG
@@ -9,13 +7,11 @@
 //#define DEBUG_STUB
 //#define DEBUG_SECURE
 
-    .global	_entry
-
-    .section .startup, "ax"
-
     /*
      *  エントリポイント
      */
+    .global	_entry
+    .section .startup, "ax"
     .type _entry, %function
 _entry:
 
@@ -311,23 +307,6 @@ start_el1:
     msr   s3_1_c15_c2_1, x0
     isb
 
-set_bss:
-    mrs   x0, mpidr_el1
-    ldr   x1, =MPIDR_AFF0_MASK
-    and   x0, x0, x1
-    cmp   x0, xzr
-    b.ne  set_bss_end
-set_bss_core0:
-    ldr   x1, =__BSS_START__
-    ldr   x2, =__BSS_END__
-    cmp   x1, x2
-    b.hs  set_bss_end
-set_bss_loop:
-    str   xzr, [x1], #8
-    cmp   x1, x2
-    b.lo  set_bss_loop
-set_bss_end:
-
 set_loader_bss:
     mrs   x0, mpidr_el1
     ldr   x1, =MPIDR_AFF0_MASK
@@ -344,6 +323,23 @@ set_loader_bss_loop:
     cmp   x1, x2
     b.lo  set_loader_bss_loop
 set_loader_bss_end:
+
+set_loader_cached_bss:
+    mrs   x0, mpidr_el1
+    ldr   x1, =MPIDR_AFF0_MASK
+    and   x0, x0, x1
+    cmp   x0, xzr
+    b.ne  set_loader_cached_bss_end
+set_loader_cached_bss_core0:
+    ldr   x1, =__LOADER_CACHED_BSS_START__
+    ldr   x2, =__LOADER_CACHED_BSS_END__
+    cmp   x1, x2
+    b.hs  set_loader_cached_bss_end
+set_loader_cached_bss_loop:
+    str   xzr, [x1], #8
+    cmp   x1, x2
+    b.lo  set_loader_cached_bss_loop
+set_loader_cached_bss_end:
 
 //set_data:
 //    mrs   x0, mpidr_el1
@@ -365,24 +361,7 @@ set_loader_bss_end:
 //set_data_end:
 
     /*
-     *  main関数へジャンプする
-     */
-set_main_stack:
-    mrs   x0, mpidr_el1
-    ldr   x1, =MPIDR_AFF0_MASK
-    and   x0, x0, x1
-    add   x0, x0, #1
-    ldr   x1, =STACK_CORE_SIZE
-    mul   x0, x1, x0
-    ldr   x1, =(_stack)
-    add   x0, x1, x0
-    mov   sp, x0
-    mov   x29, xzr          // フレームポインタを初期化する
-jump_to_main:
-    bl    main
-
-    /*
-     *  loaderへジャンプする
+     *  loader関数へジャンプする
      */
 set_loader_stack:
     mrs   x0, mpidr_el1
@@ -399,21 +378,38 @@ jump_to_loader:
     bl    loader
 
     /*
-     *  main_exit関数へジャンプする
+     *  loader_cachedへジャンプする
      */
-set_main_exit_stack:
+set_loader_cached_stack:
     mrs   x0, mpidr_el1
     ldr   x1, =MPIDR_AFF0_MASK
     and   x0, x0, x1
     add   x0, x0, #1
     ldr   x1, =STACK_CORE_SIZE
     mul   x0, x1, x0
-    ldr   x1, =(_stack)
+    ldr   x1, =(_loader_cached_stack)
     add   x0, x1, x0
     mov   sp, x0
     mov   x29, xzr          // フレームポインタを初期化する
-jump_to_main_exit:
-    bl    main_exit
+jump_to_loader_cached:
+    bl    loader_cached
+
+    /*
+     *  loader_exit関数へジャンプする
+     */
+set_loader_exit_stack:
+    mrs   x0, mpidr_el1
+    ldr   x1, =MPIDR_AFF0_MASK
+    and   x0, x0, x1
+    add   x0, x0, #1
+    ldr   x1, =STACK_CORE_SIZE
+    mul   x0, x1, x0
+    ldr   x1, =(_loader_stack)
+    add   x0, x1, x0
+    mov   sp, x0
+    mov   x29, xzr          // フレームポインタを初期化する
+jump_to_loader_exit:
+    bl    loader_exit
 
     /*
      *  ロードされたセクションにジャンプする
@@ -425,3 +421,20 @@ jump_to_loaded_section:
 panic:
     b     panic
 
+    /*
+     *  loader stack
+     */
+    .global	_loader_stack
+    .align STACK_ALIGN
+    .section .loader_stack, "aw", %nobits
+_loader_stack:
+    .space STACK_SIZE, 0
+
+    /*
+     *  loader cached stack
+     */
+    .global	_loader_cached_stack
+    .align STACK_ALIGN
+    .section .loader_cached_stack, "aw", %nobits
+_loader_cached_stack:
+    .space STACK_SIZE, 0
