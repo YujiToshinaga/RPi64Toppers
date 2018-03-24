@@ -3,7 +3,6 @@
 
 #define TRUE    1
 #define FALSE   0
-#define assert(exp)		((void) 0)
 
 /*
  *  Loaderの設定
@@ -518,6 +517,8 @@
 #define GPIO_FSEL_5     7
 
 #ifndef MACRO_ONLY
+
+#define assert(exp)		((void) 0)
 
 #define ISB()                       asm volatile("isb":::"memory")
 #define DMB()                       asm volatile("dmb sy":::"memory")
