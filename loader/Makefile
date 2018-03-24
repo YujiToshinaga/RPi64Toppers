@@ -72,7 +72,7 @@ vpath %.c	= $(SRC_DIRS)
 # Command
 #---------------------------------------
 #all: axf map sym dump bin
-all: axf map sym bin
+all: bin
 
 axf: $(TARGET_AXF)
 
