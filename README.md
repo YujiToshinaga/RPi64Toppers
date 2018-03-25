@@ -77,7 +77,7 @@ FAT32フォーマットされたSDカード直下に
  https://github.com/raspberrypi/firmware/tree/master/boot
 
  - config.txt  
- このリポジトリの```RPi64Toppers/config.txt```を使用する．
+ このリポジトリの```RPi64Toppers/fmp/targets/rpi_arm64_gcc/config.txt```を使用する
  
  - fmp.bin  
  ビルドした```fmp.bin```を使用する．
