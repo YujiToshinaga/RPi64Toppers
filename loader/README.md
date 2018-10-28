@@ -3,9 +3,9 @@
 PCでビルドしたBaremetalやリアルタイムOSの実行ファイルを  
 USB-シリアル通信でRaspberry Piに転送＆実行可能にするツール
 
-<img src="binloader.jpg" width="60%">
-
 ## 概要
+
+<img src="binloader.jpg" width="60%">
 
  - バイナリをシリアル転送して実行可能
  - 転送プロトコルは単純なXMODEM
@@ -13,7 +13,9 @@ USB-シリアル通信でRaspberry Piに転送＆実行可能にするツール
  - 4コアでマルチコア実行
  - ジャンプ後は例外レベル1ノンセキュア(EL1NS)でキャッシュとMMUはOFF
 
-## 必要な機材
+## 使い方
+
+### 必要な機材
 
  - Raspberry Pi 3 + 電源
  
@@ -24,15 +26,15 @@ TTL-232R-3V3を使用した．
 
  - PC（Windows / Linuxどちらでも可）  
 
-## 開発環境の構築
+### 開発環境の構築
 
  - コンパイラ  
 以下からフリーのARMv8 AArch64用コンパイラを入手する．  
 https://www.linaro.org/downloads/  
-開発では以下Versionのものを使用した．  
-gcc-linaro-6.3.1-2017.02-i686_aarch64-elf  
+Versionは`gcc-linaro-6.3.1-2017.02-xxx_aarch64-elf`を使用した．  
+xxxはPC環境によって適切なものを選択する．  
 ダウンロードして適当な場所に展開したら以下にpathに通す．  
-```<展開したディレクトリ>/gcc-linaro-6.3.1-2017.02-i686_aarch64-elf/bin```
+`<展開したディレクトリ>/gcc-linaro-6.3.1-2017.02-xxx_aarch64-elf/bin`
 
  - ターミナルアプリ  
 Tera Termを利用した．  
@@ -42,7 +44,7 @@ Tera TermのXMODEMファイル送信機能を使用する．
 おそらく以下パッケージが必要となる．  
 make, git, gcc-core
 
-## ビルド
+### ビルド
 
 このリポジトリを取得してloader.binをビルドする．
 ```
@@ -53,23 +55,23 @@ cd loader
 make
 ```
 
-## 動作準備
+### 動作準備
 
-### SDカードの準備
+#### SDカードの準備
 
 FAT32フォーマットされたSDカード直下に以下の4ファイルを置いてRaspberry Piに挿す．
 
  - bootcode.bin, start.elf  
-以下から```bootcode.bin```と```start.elf```をダウンロードする．  
+以下から`bootcode.bin`と`start.elf`をダウンロードする．  
 https://github.com/raspberrypi/firmware/tree/master/boot
 
  - config.txt  
-このリポジトリの```RPi64Toppers/loader/config.txt```を使用する．
+このリポジトリの`RPi64Toppers/loader/config.txt`を使用する．
  
  - loader.bin  
-ビルドした```RPi64Toppers/loader/loader.bin```を使用する．
+ビルドした`RPi64Toppers/loader/loader.bin`を使用する．
 
-### シリアルコンソールの接続
+#### シリアルコンソールの接続
 
 Raspberry PiのGPIO14(TXD1), GPIO15(RXD1), GroundをそれぞれUSB-シリアル変換ケーブルのRXD，TXD，Groundと接続する．  
 
@@ -87,7 +89,7 @@ Ground | - | Ground |
 PCとUSB-シリアル変換ケーブルを接続し，ターミナルアプリからシリアルコンソールを開く．  
 ボーレートは115200bpsを設定する．
 
-## 実行
+### 実行
 
  1. Raspberry Piの電源ON
 
